@@ -8,6 +8,7 @@ PlutoRover.Settings = function() {
   this.screenWidth = window.screen.availWidth;
   this.screenHeight = window.screen.availHeight;
   this.container = this.doc.getElementById('pluto');
+  this.step = 0;
 }
 
 PlutoRover.Settings.prototype = {
@@ -64,6 +65,11 @@ PlutoRover.Controller.prototype = {
     renderer.setSize(width, height);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
+  },
+
+  render: function(renderer, scene, camera) {
+    requestAnimationFrame(this.render);
+    renderer.render(scene, camera);
   }
 }
 
@@ -129,6 +135,18 @@ function init() {
 
   Settings.container.appendChild(Renderer.domElement);
   Renderer.render(Scene, Camera);
+
+  //Render scene loop
+  render();
+
+  function render() {
+
+      Pluto.rotation.x = Settings.step += 0.01;
+
+      // render using requestAnimationFrame
+      requestAnimationFrame(render);
+      Renderer.render(Scene, Camera);
+  }
 
   //event Handlers
   Settings.win.addEventListener('resize', Controller.handleWindowResize(Renderer, Camera, Settings.win), false);
