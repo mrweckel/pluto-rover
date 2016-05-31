@@ -17,7 +17,7 @@ PlutoRover.Colors = function() {
   this.royal    = 0x4359C1;
   this.slate    = 0x5B63BC;
   this.navy     = 0x293675;
-  this.pastel   = 0x7E89C1
+  this.pastel   = 0x7E89C1;
   this.midnight = 0x171E42;
 };
 
@@ -35,14 +35,12 @@ PlutoRover.CameraSettings.prototype = {};
 PlutoRover.Planet = function(s) {
 
   // create a sphere
-  var sphereGeometry = new THREE.SphereGeometry(50, 20, 20);
+  var sphereGeometry = new THREE.SphereGeometry(200, 20, 20);
   var sphereMaterial = new THREE.MeshBasicMaterial({color: 0x7777ff, wireframe: true});
   return new THREE.Mesh(sphereGeometry, sphereMaterial);
 };
 
-PlutoRover.Planet.prototype = {
-
-}
+PlutoRover.Planet.prototype = {}
 
 PlutoRover.Controller = function() {
 
@@ -84,7 +82,7 @@ function init() {
   //Set Camera
   var CamSettings = new PlutoRover.CameraSettings(Settings.screenWidth, Settings.screenHeight);
   var Camera = new THREE.PerspectiveCamera(CamSettings.fov, CamSettings.aspectRatio, CamSettings.nearPlane, CamSettings.farPlane);
-  Controller.setCameraPosition(Camera, 60, 40, -30);
+  Controller.setCameraPosition(Camera, 0, 0, 0);
   Camera.lookAt(Scene.position, 0);
 
   var Renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
@@ -121,9 +119,9 @@ function init() {
   var Pluto = new PlutoRover.Planet(Scene);
 
   // position the sphere
-  Pluto.position.x = 10;
-  Pluto.position.y = -40;
-  Pluto.position.z = 20;
+  Pluto.position.x = -10;
+  Pluto.position.y = -180;
+  Pluto.position.z = -200;
 
   // add the sphere to the scene
   Scene.add(Pluto);
