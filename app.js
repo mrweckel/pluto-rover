@@ -24,6 +24,30 @@ PlutoRover.Colors = function() {
 
 PlutoRover.Colors.prototype = {};
 
+PlutoRover.Lights = function() {
+  this.hemisphereLight = new THREE.HemisphereLight(0x000000, 0x3F3F3F, .9);//Color 1, Color 2, Intensity
+  this.shadowLight = new THREE.DirectionalLight(0xffffff, .9);//Color, Intensity
+
+  this.shadowLight.position.set(150, 350, 350);
+
+  this.shadowLight.castShadow = true;
+
+  this.shadowLight.shadow.camera.left = -400;
+  this.shadowLight.shadow.camera.right = 400;
+  this.shadowLight.shadow.camera.top = 400;
+  this.shadowLight.shadow.camera.bottom = -400;
+  this.shadowLight.shadow.camera.near = 1;
+  this.shadowLight.shadow.camera.far = 1000;
+
+  Scene.add(this.hemisphereLight);
+  Scene.add(this.shadowLight);
+
+};
+
+PlutoRover.Lights.prototype = {
+
+};
+
 PlutoRover.CameraSettings = function(width, height) {
   this.aspectRatio = width / height;
   this.fov = 60;
@@ -33,15 +57,43 @@ PlutoRover.CameraSettings = function(width, height) {
 
 PlutoRover.CameraSettings.prototype = {};
 
-PlutoRover.Planet = function(s) {
+PlutoRover.Planet = function() {
 
-  // create a sphere
-  var sphereGeometry = new THREE.SphereGeometry(200, 20, 20);
-  var sphereMaterial = new THREE.MeshBasicMaterial({color: 0x7777ff, wireframe: true});
-  return new THREE.Mesh(sphereGeometry, sphereMaterial);
+  this.radius = 200;
+  this.widthSegments = 100;
+  this.heightSegments = 100;
+  this.textureImage = 'pluto-2.jpg';
+  this.bump = 'pluto-2.jpg';
+  this.geom = new THREE.SphereGeometry(this.radius, this.widthSegments, this.heightSegments);
 };
 
-PlutoRover.Planet.prototype = {}
+PlutoRover.Planet.prototype = {
+
+  createMesh: function() {
+
+    var filePath = '/images/';
+
+    var texture  = new THREE.TextureLoader().load(filePath + this.textureImage);//load main texture
+    texture.wrapS = THREE.RepeatWrapping;//set wrap X
+    texture.wrapT = THREE.RepeatWrapping;//set wrap Y
+
+    var material = new THREE.MeshPhongMaterial();
+    material.map = texture;
+
+    console.log(material);
+
+    material.map.repeat.set(7, 7);//Set amount of repeats
+
+    var bump = new THREE.TextureLoader().load(filePath + this.bump);
+    material.bumpMap = bump;
+    material.bumpScale = 0.9;
+
+    var mesh =  new THREE.Mesh(this.geom, material);
+    mesh.shading = THREE.Shading;
+
+    return mesh;
+  }
+}
 
 PlutoRover.Controller = function() {
 
@@ -70,7 +122,9 @@ PlutoRover.Controller.prototype = {
   render: function(renderer, scene, camera) {
     requestAnimationFrame(this.render);
     renderer.render(scene, camera);
-  }
+  },
+
+
 }
 
 
@@ -95,9 +149,9 @@ function init() {
   Renderer.setSize(Settings.screenWidth, Settings.screenHeight);
   Renderer.shadowMap.enabled = true;
 
-  console.log(Renderer);
 
   //Lights
+  //NEEDS TO BE MOVED
   var hemisphereLight = new THREE.HemisphereLight(0x000000, 0x3F3F3F, .9);//Color 1, Color 2, Intensity
   var shadowLight = new THREE.DirectionalLight(0xffffff, .9);//Color, Intensity
 
@@ -120,27 +174,27 @@ function init() {
   shadowLight.shadow.mapSize.width = 2048;
   shadowLight.shadow.mapSize.height = 2048;
 
-
   //Planet
-  var Pluto = new PlutoRover.Planet(Scene);
+  var Pluto = new PlutoRover.Planet().createMesh();
+  console.log(Pluto);
 
   // position the sphere
   Pluto.position.x = -10;
   Pluto.position.y = -180;
   Pluto.position.z = -200;
 
+  Pluto.rotation.y = 0.5;
+
   // add the sphere to the scene
   Scene.add(Pluto);
 
-
   Settings.container.appendChild(Renderer.domElement);
-  Renderer.render(Scene, Camera);
+  // Renderer.render(Scene, Camera);
 
   //Render scene loop
   render();
 
   function render() {
-
       Pluto.rotation.x = Settings.step += 0.01;
 
       // render using requestAnimationFrame
@@ -151,6 +205,9 @@ function init() {
   //event Handlers
   Settings.win.addEventListener('resize', Controller.handleWindowResize(Renderer, Camera, Settings.win), false);
 
+
+  //for debugging
+  // window.scene = Scene;
 
 
 }
