@@ -69,7 +69,7 @@ PlutoRover.Planet = function() {
 
 PlutoRover.Planet.prototype = {
 
-  createMesh: function() {
+  createTextureMesh: function() {
 
     var filePath = '/images/';
 
@@ -79,8 +79,6 @@ PlutoRover.Planet.prototype = {
 
     var material = new THREE.MeshPhongMaterial();
     material.map = texture;
-
-    console.log(material);
 
     material.map.repeat.set(7, 7);//Set amount of repeats
 
@@ -92,6 +90,45 @@ PlutoRover.Planet.prototype = {
     mesh.shading = THREE.Shading;
 
     return mesh;
+  },
+
+  createPhongMesh: function() {
+
+    var material = new THREE.MeshPhongMaterial({color: 0x7E89C1});
+    var mesh =  new THREE.Mesh(this.geom, material);
+    mesh.shading = THREE.Shading;
+
+    return mesh;
+  }
+}
+
+PlutoRover.Hills = function() {
+
+}
+
+PlutoRover.Hills.prototype = {
+
+  createHill: function() {
+
+    var radius = this.randomGenerator();
+    var widthSegments  = 100;
+    var heightSegments = 100;
+
+    console.log(radius);
+
+    var geom = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
+    var mat  = new THREE.MeshLambertMaterial({color: 0x7E89C1});
+
+    var mesh = new THREE.Mesh(geom, mat);
+
+    return mesh;
+  },
+
+  randomGenerator: function() {
+    var min = 5;
+    var max = 10;
+
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 }
 
@@ -110,7 +147,6 @@ PlutoRover.Controller.prototype = {
 
   handleWindowResize: function(renderer, camera, window) {
 
-    console.log('resizing');
     var width = window.screen.availWidth;
     var height = window.screen.availHeight;
 
@@ -123,7 +159,6 @@ PlutoRover.Controller.prototype = {
     requestAnimationFrame(this.render);
     renderer.render(scene, camera);
   },
-
 
 }
 
@@ -174,9 +209,19 @@ function init() {
   shadowLight.shadow.mapSize.width = 2048;
   shadowLight.shadow.mapSize.height = 2048;
 
+  //Hills
+  var hills = new PlutoRover.Hills;
+  var hill_01 = hills.createHill();
+  console.log(hill_01);
+
+  hill_01.position.x = -10;
+  hill_01.position.y =  20;
+  hill_01.position.z = -200;
+
+  Scene.add(hill_01);
+
   //Planet
-  var Pluto = new PlutoRover.Planet().createMesh();
-  console.log(Pluto);
+  var Pluto = new PlutoRover.Planet().createPhongMesh();
 
   // position the sphere
   Pluto.position.x = -10;
@@ -188,8 +233,9 @@ function init() {
   // add the sphere to the scene
   Scene.add(Pluto);
 
+
+
   Settings.container.appendChild(Renderer.domElement);
-  // Renderer.render(Scene, Camera);
 
   //Render scene loop
   render();
@@ -204,12 +250,6 @@ function init() {
 
   //event Handlers
   Settings.win.addEventListener('resize', Controller.handleWindowResize(Renderer, Camera, Settings.win), false);
-
-
-  //for debugging
-  // window.scene = Scene;
-
-
 }
 
 
