@@ -9,9 +9,37 @@ PlutoRover.Settings = function() {
   this.screenHeight = window.screen.availHeight;
   this.container = this.doc.getElementById('pluto');
   this.step = 0;
+  this.devMode = false;
 }
 
 PlutoRover.Settings.prototype = {
+
+  setDevEnvironment: function(scene){
+
+    console.log('Development Mode is ON');
+
+    //AXES for dev
+    // show axes in the screen
+    var axes = new THREE.AxisHelper(20);
+    scene.add(axes);
+
+    // create the ground plane
+    var planeGeometry = new THREE.PlaneGeometry(200, 80);
+    var planeMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc});
+    var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+
+    // rotate and position the plane
+    plane.rotation.x = -0.5 * Math.PI;
+    plane.position.x = 15;
+    plane.position.y = 0;
+    plane.position.z = 0;
+
+    // add the plane to the scene
+    scene.add(plane);
+
+    //Move camera to dev environment
+    // moveCamera;
+    }
 };
 
 PlutoRover.Colors = function() {
@@ -59,7 +87,7 @@ PlutoRover.CameraSettings.prototype = {};
 
 PlutoRover.Planet = function() {
 
-  this.radius = 200;
+  this.radius = 20;
   this.widthSegments = 100;
   this.heightSegments = 100;
   this.textureImage = 'pluto-2.jpg';
@@ -74,13 +102,9 @@ PlutoRover.Planet.prototype = {
     var filePath = '/images/';
 
     var texture  = new THREE.TextureLoader().load(filePath + this.textureImage);//load main texture
-    texture.wrapS = THREE.RepeatWrapping;//set wrap X
-    texture.wrapT = THREE.RepeatWrapping;//set wrap Y
 
     var material = new THREE.MeshPhongMaterial();
     material.map = texture;
-
-    material.map.repeat.set(7, 7);//Set amount of repeats
 
     var bump = new THREE.TextureLoader().load(filePath + this.bump);
     material.bumpMap = bump;
@@ -177,13 +201,12 @@ function init() {
   //Set Camera
   var CamSettings = new PlutoRover.CameraSettings(Settings.screenWidth, Settings.screenHeight);
   var Camera = new THREE.PerspectiveCamera(CamSettings.fov, CamSettings.aspectRatio, CamSettings.nearPlane, CamSettings.farPlane);
-  Controller.setCameraPosition(Camera, 0, 0, 0);
-  Camera.lookAt(Scene.position, 0);
+  Controller.setCameraPosition(Camera, -30, 40, 30);
+  Camera.lookAt(Scene.position);
 
   var Renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
   Renderer.setSize(Settings.screenWidth, Settings.screenHeight);
   Renderer.shadowMap.enabled = true;
-
 
   //Lights
   //NEEDS TO BE MOVED
@@ -221,19 +244,27 @@ function init() {
   Scene.add(hill_01);
 
   //Planet
-  var Pluto = new PlutoRover.Planet().createPhongMesh();
+  var Pluto = new PlutoRover.Planet().createTextureMesh();
 
   // position the sphere
-  Pluto.position.x = -10;
-  Pluto.position.y = -180;
-  Pluto.position.z = -200;
+  Pluto.position.x = 0;
+  Pluto.position.y = 0;
+  Pluto.position.z = 0;
 
   Pluto.rotation.y = 0.5;
 
   // add the sphere to the scene
   Scene.add(Pluto);
 
+  console.log(Scene.position);
 
+
+   //Development Mode
+  Settings.devMode = true;
+
+  if(Settings.devMode === true){
+    Settings.setDevEnvironment(Scene);
+  }
 
   Settings.container.appendChild(Renderer.domElement);
 
@@ -247,6 +278,8 @@ function init() {
       requestAnimationFrame(render);
       Renderer.render(Scene, Camera);
   }
+
+
 
   //event Handlers
   Settings.win.addEventListener('resize', Controller.handleWindowResize(Renderer, Camera, Settings.win), false);
