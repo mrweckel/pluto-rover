@@ -24,7 +24,7 @@ PlutoRover.Settings.prototype = {
     scene.add(axes);
 
     // create the ground plane
-    var planeGeometry = new THREE.PlaneGeometry(200, 80);
+    var planeGeometry = new THREE.PlaneGeometry(100, 40);
     var planeMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc});
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
 
@@ -87,7 +87,7 @@ PlutoRover.CameraSettings.prototype = {};
 
 PlutoRover.Planet = function() {
 
-  this.radius = 20;
+  this.radius = 26;
   this.widthSegments = 100;
   this.heightSegments = 100;
   this.textureImage = 'pluto-2.jpg';
@@ -118,7 +118,16 @@ PlutoRover.Planet.prototype = {
 
   createPhongMesh: function() {
 
-    var material = new THREE.MeshPhongMaterial({color: 0x7E89C1});
+    var material = new THREE.MeshPhongMaterial({opacity: 0.5, color: 0x7E89C1});
+    var mesh =  new THREE.Mesh(this.geom, material);
+    mesh.shading = THREE.Shading;
+
+    return mesh;
+  },
+
+  createLambertMesh: function() {
+
+    var material = new THREE.MeshLambertMaterial({opacity: 0.5, color: 0x7E89C1});
     var mesh =  new THREE.Mesh(this.geom, material);
     mesh.shading = THREE.Shading;
 
@@ -201,9 +210,22 @@ function init() {
   //Set Camera
   var CamSettings = new PlutoRover.CameraSettings(Settings.screenWidth, Settings.screenHeight);
   var Camera = new THREE.PerspectiveCamera(CamSettings.fov, CamSettings.aspectRatio, CamSettings.nearPlane, CamSettings.farPlane);
-  Controller.setCameraPosition(Camera, -30, 40, 30);
-  Camera.lookAt(Scene.position);
 
+
+  // Set main camera angle
+  var vector = new THREE.Vector3(0, 50, 0);
+  Controller.setCameraPosition(Camera, 0, -30, 24);
+
+  //for debug purposes
+  var camGuideGeom = new THREE.SphereGeometry(2);
+  var camGuideMesh = new THREE.Mesh(camGuideGeom, new THREE.MeshLambertMaterial({color: 0xff0000}));
+  camGuideMesh.position.copy(vector);
+  Scene.add(camGuideMesh);
+
+  //set camera point
+  Camera.lookAt(vector);
+
+  //set renderer
   var Renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
   Renderer.setSize(Settings.screenWidth, Settings.screenHeight);
   Renderer.shadowMap.enabled = true;
@@ -244,7 +266,7 @@ function init() {
   Scene.add(hill_01);
 
   //Planet
-  var Pluto = new PlutoRover.Planet().createTextureMesh();
+  var Pluto = new PlutoRover.Planet().createPhongMesh();
 
   // position the sphere
   Pluto.position.x = 0;
