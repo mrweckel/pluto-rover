@@ -20,7 +20,7 @@ PlutoRover.Settings.prototype = {
 
     //AXES for dev
     // show axes in the screen
-    var axes = new THREE.AxisHelper(20);
+    var axes = new THREE.AxisHelper(50);
     scene.add(axes);
 
     // create the ground plane
@@ -127,7 +127,7 @@ PlutoRover.Planet.prototype = {
 
   createLambertMesh: function() {
 
-    var material = new THREE.MeshLambertMaterial({opacity: 0.5, color: 0x7E89C1});
+    var material = new THREE.MeshLambertMaterial({opacity: 0.5, color: 0x7E89C1, wireframe: true});
     var mesh =  new THREE.Mesh(this.geom, material);
     mesh.shading = THREE.Shading;
 
@@ -164,6 +164,25 @@ PlutoRover.Hills.prototype = {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 }
+
+PlutoRover.Ship = function() {
+
+    this.size = 8;
+
+};
+
+PlutoRover.Ship.prototype = {
+
+  build: function() {
+    var cubeGeometry = new THREE.BoxGeometry(this.size, this.size, this.size);
+    var cubeMaterial = new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: true});
+    var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+
+    return cube;
+  }
+}
+
+
 
 PlutoRover.Controller = function() {
 
@@ -213,8 +232,8 @@ function init() {
 
 
   // Set main camera angle
-  var vector = new THREE.Vector3(0, 50, 0);
-  Controller.setCameraPosition(Camera, 0, -30, 24);
+  var vector = new THREE.Vector3(0, 40, 0);
+  Controller.setCameraPosition(Camera, 0, 0, 30);
 
   //for debug purposes
   var camGuideGeom = new THREE.SphereGeometry(2);
@@ -266,7 +285,7 @@ function init() {
   Scene.add(hill_01);
 
   //Planet
-  var Pluto = new PlutoRover.Planet().createPhongMesh();
+  var Pluto = new PlutoRover.Planet().createLambertMesh();
 
   // position the sphere
   Pluto.position.x = 0;
@@ -278,8 +297,16 @@ function init() {
   // add the sphere to the scene
   Scene.add(Pluto);
 
-  console.log(Scene.position);
+  //Ship
+  var Ship = new PlutoRover.Ship().build();
 
+  Ship.position.x = 0;
+  Ship.position.y = 50;
+  Ship.position.z = 10;
+
+  Ship.rotation.x = 45;
+
+  Scene.add(Ship);
 
    //Development Mode
   Settings.devMode = true;
