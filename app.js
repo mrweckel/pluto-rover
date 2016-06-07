@@ -167,14 +167,16 @@ PlutoRover.Hills.prototype = {
 
 PlutoRover.Ship = function() {
 
-    this.size = 8;
+    this.width = 8;
+    this.height = 4;
+    this.depth = 16;
 
 };
 
 PlutoRover.Ship.prototype = {
 
   build: function() {
-    var cubeGeometry = new THREE.BoxGeometry(this.size, this.size, this.size);
+    var cubeGeometry = new THREE.BoxGeometry(this.width, this.height, this.depth);
     var cubeMaterial = new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: true});
     var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 
@@ -212,6 +214,26 @@ PlutoRover.Controller.prototype = {
     renderer.render(scene, camera);
   },
 
+  handleKeyboardRequest: function(e) {
+    console.log(e);
+    switch(e.keyCode) {
+      case 39:
+        console.log('you are flying right');
+        break;
+      case 37:
+        console.log('you are flying left');
+        break;
+      case 39:
+        console.log('you are flying down');
+        break;
+      case 40:
+        console.log('you are flying up');
+        break;
+      default:
+        break;
+    }
+  }
+
 }
 
 
@@ -225,6 +247,9 @@ function init() {
   var Scene      = new THREE.Scene();
   var Fog        = new THREE.Fog(0x000000);;
   var Controller = new PlutoRover.Controller();
+
+  //add keyboard event listeners
+  window.addEventListener('keydown', Controller.handleKeyboardRequest, false);
 
   //Set Camera
   var CamSettings = new PlutoRover.CameraSettings(Settings.screenWidth, Settings.screenHeight);
@@ -301,7 +326,7 @@ function init() {
   var Ship = new PlutoRover.Ship().build();
 
   Ship.position.x = 0;
-  Ship.position.y = 50;
+  Ship.position.y = 30;
   Ship.position.z = 10;
 
   Ship.rotation.x = 45;
@@ -335,48 +360,8 @@ function init() {
 }
 
 
+//to do
+// create flight pattern for Ship
+// group together objects
+//create points
 
-
-//OLD
-
-// PlutoRover.Planet = function(groundColor) {
-
-//   var geom = new THREE.CylinderGeometry(600, 600, 800, 40, 10);
-//   geom.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI/2));
-
-//   var mat = new THREE.MeshPhongMaterial({
-//     color: groundColor,
-//     transparent: true,
-//     opacity: 0.8,
-//     shading: THREE.FlatShading
-//   });
-
-//   this.mesh = new THREE.Mesh(geom, mat);
-
-//   this.mesh.receiveShadow = true;
-// };
-
-// PlutoRover.Planet.prototype = {
-
-//   moveWaves: function() {
-
-//     var verts = this.mesh.geometry.vertices;
-//     var length = verts.length;
-
-//     for(var i=0; i<1; i++){
-
-//       var v = verts[i];
-
-//       var vprops = this.waves[i];
-
-//       v.x = vprops.x + Math.cos(vprops.angle) * vprops.amp;
-//       v.y = vprops.y + Math.sin(vprops.angle) * vprops.amp;
-
-//       vprops.angle += vprops.speed;
-//     }
-
-//     this.mesh.geometry.verticesNeedUpdate=true;
-
-//     PlutoRover.Planet.mesh.rotation.z += .005;
-//   }
-// };
