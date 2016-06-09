@@ -212,28 +212,7 @@ PlutoRover.Controller.prototype = {
   render: function(renderer, scene, camera) {
     requestAnimationFrame(this.render);
     renderer.render(scene, camera);
-  },
-
-  handleKeyboardRequest: function(e) {
-    console.log(e);
-    switch(e.keyCode) {
-      case 39:
-        console.log('you are flying right');
-        break;
-      case 37:
-        console.log('you are flying left');
-        break;
-      case 39:
-        console.log('you are flying down');
-        break;
-      case 40:
-        console.log('you are flying up');
-        break;
-      default:
-        break;
-    }
   }
-
 }
 
 
@@ -248,17 +227,20 @@ function init() {
   var Fog        = new THREE.Fog(0x000000);;
   var Controller = new PlutoRover.Controller();
 
-  //add keyboard event listeners
-  window.addEventListener('keydown', Controller.handleKeyboardRequest, false);
 
   //Set Camera
   var CamSettings = new PlutoRover.CameraSettings(Settings.screenWidth, Settings.screenHeight);
   var Camera = new THREE.PerspectiveCamera(CamSettings.fov, CamSettings.aspectRatio, CamSettings.nearPlane, CamSettings.farPlane);
 
+  //add keyboard event listeners
+  window.addEventListener('keydown', handleKeyboardRequest, false);
+  window.addEventListener('keyup', returnToCenter, false);
 
   // Set main camera angle
   var vector = new THREE.Vector3(0, 40, 0);
   Controller.setCameraPosition(Camera, 0, 0, 30);
+
+  console.log(Camera);
 
   //for debug purposes
   var camGuideGeom = new THREE.SphereGeometry(2);
@@ -341,6 +323,60 @@ function init() {
   }
 
   Settings.container.appendChild(Renderer.domElement);
+
+  //TEMP event handler location
+  function handleKeyboardRequest(e) {
+    console.log(e);
+    switch(e.keyCode) {
+      case 39:
+        console.log('you are flying right');
+
+        if(Camera.rotation.z >= .4){
+          Camera.rotation.z === .4;
+          Ship.position.x === 5;
+          Ship.rotation.y === .05;
+          Ship.rotation.z === .2;
+        } else {
+          Ship.position.x += 1;
+          Ship.rotation.y += .01;
+          Ship.rotation.z -= .025;
+          Camera.rotation.z += .05;
+
+          // Pluto.rotation.z -= .01;
+        }
+        break;
+      case 37:
+        console.log('you are flying left');
+        if(Camera.rotation.z <= -.4){
+          Camera.rotation.z === -.4;
+          Ship.position.x === -5;
+          Ship.rotation.y === -.05;
+          Camera.rotation.z === -.4;
+        } else {
+          Ship.position.x -= 1;
+          Ship.rotation.y -= .01;
+          Ship.rotation.z += .025;
+         Camera.rotation.z -= .05;
+        }
+         break;
+      case 38:
+        console.log('you are flying down');
+        break;
+      case 40:
+        console.log('you are flying up');
+        break;
+      default:
+        break;
+    }
+  }
+
+  function returnToCenter(){
+    Camera.rotation.z = 0;
+
+    Ship.position.x = 0;
+    Ship.rotation.y = 0;
+    Ship.rotation.z = 0;
+  }
 
   //Render scene loop
   render();
