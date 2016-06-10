@@ -228,6 +228,8 @@ function init() {
   var Controller = new PlutoRover.Controller();
 
 
+
+
   //Set Camera
   var CamSettings = new PlutoRover.CameraSettings(Settings.screenWidth, Settings.screenHeight);
   var Camera = new THREE.PerspectiveCamera(CamSettings.fov, CamSettings.aspectRatio, CamSettings.nearPlane, CamSettings.farPlane);
@@ -337,12 +339,11 @@ function init() {
           Ship.rotation.y === .05;
           Ship.rotation.z === .2;
         } else {
-          Ship.position.x += 1;
-          Ship.rotation.y += .01;
-          Ship.rotation.z -= .025;
-          Camera.rotation.z += .05;
 
-          // Pluto.rotation.z -= .01;
+          createjs.Tween.get(Ship.position).to({x: Ship.position.x+1},100);
+          createjs.Tween.get(Ship.rotation).to({y: Ship.rotation.y+.01},100);
+          createjs.Tween.get(Ship.rotation).to({z: Ship.rotation.z-.025},100);
+          createjs.Tween.get(Camera.rotation).to({z: Camera.rotation.z+.05},100);
         }
         break;
       case 37:
@@ -353,10 +354,10 @@ function init() {
           Ship.rotation.y === -.05;
           Camera.rotation.z === -.4;
         } else {
-          Ship.position.x -= 1;
-          Ship.rotation.y -= .01;
-          Ship.rotation.z += .025;
-         Camera.rotation.z -= .05;
+          createjs.Tween.get(Ship.position).to({x: Ship.position.x-1},100);
+          createjs.Tween.get(Ship.rotation).to({y: Ship.rotation.y-.01},100);
+          createjs.Tween.get(Ship.rotation).to({z: Ship.rotation.z+.025},100);
+          createjs.Tween.get(Camera.rotation).to({z: Camera.rotation.z-.05},100);
         }
          break;
       case 38:
@@ -371,11 +372,11 @@ function init() {
   }
 
   function returnToCenter(){
-    Camera.rotation.z = 0;
 
-    Ship.position.x = 0;
-    Ship.rotation.y = 0;
-    Ship.rotation.z = 0;
+    createjs.Tween.get(Ship.position).to({x: 0}  ,500);
+    createjs.Tween.get(Ship.rotation).to({y: 0}  ,500);
+    createjs.Tween.get(Ship.rotation).to({z: 0}  ,500);
+    createjs.Tween.get(Camera.rotation).to({z: 0},500);
   }
 
   //Render scene loop
