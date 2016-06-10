@@ -170,8 +170,7 @@ PlutoRover.Ship = function() {
     this.width = 8;
     this.height = 4;
     this.depth = 16;
-
-};
+}
 
 PlutoRover.Ship.prototype = {
 
@@ -182,6 +181,25 @@ PlutoRover.Ship.prototype = {
 
     return cube;
   }
+}
+
+PlutoRover.Crystal = function() {
+
+  this.width = 4;
+  this.height = 4;
+  this.depth = 4;
+  this.posX = null;
+  this.posY = null;
+
+  var cubeGeometry = new THREE.BoxGeometry(this.width, this.height, this.depth);
+  var material = new THREE.MeshLambertMaterial({opacity: 0.5, color: 0xff0000, wireframe: true});
+  var mesh =  new THREE.Mesh(this.geom, material);
+
+  return mesh;
+}
+
+PlutoRover.Crystal.prototype = {
+
 }
 
 
@@ -304,7 +322,18 @@ function init() {
   Pluto.rotation.y = 0.5;
 
   // add the sphere to the scene
-  Scene.add(Pluto);
+  // Scene.add(Pluto);
+
+  //Add Crystals
+  var Crystal = new PlutoRover.Crystal();
+  console.log(Crystal);
+  // Scene.add(Crystal);
+
+  var group = new THREE.Group();
+  group.add(Pluto);
+
+  Scene.add(group);
+  console.log(group);
 
   //Ship
   var Ship = new PlutoRover.Ship().build();
