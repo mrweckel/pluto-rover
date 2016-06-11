@@ -10,7 +10,33 @@ PlutoRover.Settings = function() {
   this.container = this.doc.getElementById('pluto');
   this.step = 0;
   this.devMode = false;
-}
+  this.viewPorts = [
+    {
+      left: 0,
+      bottom: 0,
+      width: 0.5,
+      height: 1.0,
+      eye: [0,0,30],
+      subject: [0, 40, 0]
+    },
+    {
+      left: 0.5,
+      bottom: 0.5,
+      width: 0.5,
+      height: 0.5,
+      eye: [90,90,90],
+      subject: [0, 0, 0]
+    },
+    {
+      left: 0.5,
+      bottom: 0,
+      width: 0.5,
+      height: 0.5,
+      eye: [0,0,60],
+      subject: [0, 20, 0]
+    },
+  ]
+};
 
 PlutoRover.Settings.prototype = {
 
@@ -41,6 +67,7 @@ PlutoRover.Settings.prototype = {
     // moveCamera;
     }
 };
+
 
 PlutoRover.Colors = function() {
   this.royal    = 0x4359C1;
@@ -167,16 +194,16 @@ PlutoRover.Hills.prototype = {
 
 PlutoRover.Ship = function() {
 
-    this.width = 8;
-    this.height = 4;
-    this.depth = 16;
+    this.width = 1;
+    this.height = 0.5;
+    this.depth = 2;
 }
 
 PlutoRover.Ship.prototype = {
 
   build: function() {
     var cubeGeometry = new THREE.BoxGeometry(this.width, this.height, this.depth);
-    var cubeMaterial = new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: true});
+    var cubeMaterial = new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: false});
     var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 
     return cube;
@@ -185,15 +212,15 @@ PlutoRover.Ship.prototype = {
 
 PlutoRover.Crystal = function() {
 
-  this.width = 4;
-  this.height = 4;
-  this.depth = 4;
+  this.width = 0.25;
+  this.height = 0.25;
+  this.depth = 0.25;
   this.posX = null;
   this.posY = null;
 
   var cubeGeometry = new THREE.BoxGeometry(this.width, this.height, this.depth);
-  var material = new THREE.MeshLambertMaterial({opacity: 0.5, color: 0xff0000, wireframe: true});
-  var mesh =  new THREE.Mesh(this.geom, material);
+  var material = new THREE.MeshLambertMaterial({opacity: 0.75, color: 0xff0000});
+  var mesh =  new THREE.Mesh(cubeGeometry, material);
 
   return mesh;
 }
@@ -245,22 +272,49 @@ function init() {
   var Fog        = new THREE.Fog(0x000000);;
   var Controller = new PlutoRover.Controller();
 
+  var Cameras = []; //hold cameras created. Will be multiple if in devmode
 
-
-
-  //Set Camera
-  var CamSettings = new PlutoRover.CameraSettings(Settings.screenWidth, Settings.screenHeight);
-  var Camera = new THREE.PerspectiveCamera(CamSettings.fov, CamSettings.aspectRatio, CamSettings.nearPlane, CamSettings.farPlane);
 
   //add keyboard event listeners
   window.addEventListener('keydown', handleKeyboardRequest, false);
-  window.addEventListener('keyup', returnToCenter, false);
+  // window.addEventListener('keyup', returnToCenter, false);
 
-  // Set main camera angle
-  var vector = new THREE.Vector3(0, 40, 0);
-  Controller.setCameraPosition(Camera, 0, 0, 30);
+  // Check if in dev mode
+  if(Settings.devMode !== true){
 
-  console.log(Camera);
+  //Set Camera
+    var CamSettings = new PlutoRover.CameraSettings(Settings.screenWidth, Settings.screenHeight);
+    var Camera = new THREE.PerspectiveCamera(CamSettings.fov, CamSettings.aspectRatio, CamSettings.nearPlane, CamSettings.farPlane);
+
+    var vector = new THREE.Vector3(0, 40, 0);
+    Controller.setCameraPosition(Camera, 0, 0, 30);
+
+    Camera.lookAt(vector);
+
+  } else {
+
+    Settings.setDevEnvironment(Scene);
+
+    for(var i = 0; i < Settings.viewPorts.length; i++) {
+
+      var view = Settings.viewPorts[i];
+      var settings = new PlutoRover.CameraSettings(Settings.screenWidth, Settings.screenHeight);
+      var camera = new THREE.PerspectiveCamera(settings.fov, settings.aspectRatio, settings.nearPlane, settings.farPlane);
+
+      camera.position.x = view.eye[0];
+      camera.position.y = view.eye[1];
+      camera.position.z = view.eye[2];
+
+      var s = view.subject;
+      var vector = new THREE.Vector3(s[0], s[1], s[2]);
+
+      camera.lookAt(vector);
+
+      Cameras.push(camera); //make camera available outside loop
+    }
+
+    console.log(Cameras);
+  }
 
   //for debug purposes
   var camGuideGeom = new THREE.SphereGeometry(2);
@@ -269,7 +323,6 @@ function init() {
   Scene.add(camGuideMesh);
 
   //set camera point
-  Camera.lookAt(vector);
 
   //set renderer
   var Renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
@@ -326,11 +379,17 @@ function init() {
 
   //Add Crystals
   var Crystal = new PlutoRover.Crystal();
+
+  Crystal.position.x = 1;
+  Crystal.position.y = 25;
+  Crystal.position.z = 10;
+
   console.log(Crystal);
-  // Scene.add(Crystal);
+  Scene.add(Crystal);
 
   var group = new THREE.Group();
   group.add(Pluto);
+  group.add(Crystal);
 
   Scene.add(group);
   console.log(group);
@@ -339,19 +398,18 @@ function init() {
   var Ship = new PlutoRover.Ship().build();
 
   Ship.position.x = 0;
-  Ship.position.y = 30;
-  Ship.position.z = 10;
+  Ship.position.y = 3.75;
+  Ship.position.z = 26.25;
 
-  Ship.rotation.x = 45;
+  Ship.rotation.x = 20;
 
   Scene.add(Ship);
 
-   //Development Mode
-  Settings.devMode = true;
+  //  //Development Mode
 
-  if(Settings.devMode === true){
-    Settings.setDevEnvironment(Scene);
-  }
+  // if(Settings.devMode === true){
+  //   Settings.setDevEnvironment(Scene);
+  // }
 
   Settings.container.appendChild(Renderer.domElement);
 
@@ -362,14 +420,14 @@ function init() {
       case 39:
         console.log('you are flying right');
 
-        if(Camera.rotation.z >= .4){
+        if(Camera.rotation.z >= .3){
           Camera.rotation.z === .4;
-          Ship.position.x === 5;
+          Ship.position.x === 1.5;
           Ship.rotation.y === .05;
           Ship.rotation.z === .2;
         } else {
 
-          createjs.Tween.get(Ship.position).to({x: Ship.position.x+1},100);
+          createjs.Tween.get(Ship.position).to({x: Ship.position.x+.5},100);
           createjs.Tween.get(Ship.rotation).to({y: Ship.rotation.y+.01},100);
           createjs.Tween.get(Ship.rotation).to({z: Ship.rotation.z-.025},100);
           createjs.Tween.get(Camera.rotation).to({z: Camera.rotation.z+.05},100);
@@ -377,13 +435,13 @@ function init() {
         break;
       case 37:
         console.log('you are flying left');
-        if(Camera.rotation.z <= -.4){
+        if(Camera.rotation.z <= -.3){
           Camera.rotation.z === -.4;
-          Ship.position.x === -5;
+          Ship.position.x === -1.5;
           Ship.rotation.y === -.05;
           Camera.rotation.z === -.4;
         } else {
-          createjs.Tween.get(Ship.position).to({x: Ship.position.x-1},100);
+          createjs.Tween.get(Ship.position).to({x: Ship.position.x-.5},100);
           createjs.Tween.get(Ship.rotation).to({y: Ship.rotation.y-.01},100);
           createjs.Tween.get(Ship.rotation).to({z: Ship.rotation.z+.025},100);
           createjs.Tween.get(Camera.rotation).to({z: Camera.rotation.z-.05},100);
@@ -408,21 +466,54 @@ function init() {
     createjs.Tween.get(Camera.rotation).to({z: 0},500);
   }
 
-  //Render scene loop
-  render();
+  function animate() {
+
+    render();
+
+    requestAnimationFrame(animate);
+  }
 
   function render() {
-      Pluto.rotation.x = Settings.step += 0.01;
 
-      // render using requestAnimationFrame
-      requestAnimationFrame(render);
-      Renderer.render(Scene, Camera);
+      group.rotation.x = Settings.step += 0.01;
+
+      if(Settings.devMode != true){
+
+        //Only one camera in primary mode
+        Renderer.render(Scene, Camera);
+      } else {
+
+        for(var i = 0; i < Cameras.length; i++){
+
+          var view = Settings.viewPorts[i];
+          var camera = Cameras[i];
+          var windowWidth = Settings.screenWidth;
+          var windowHeight = Settings.screenHeight;
+
+          var left = Math.floor(windowWidth * view.left);
+          var bottom = Math.floor(windowHeight * view.bottom);
+          var width = Math.floor(windowWidth * view.width);
+          var height = Math.floor(windowHeight * view.height);
+          Renderer.setViewport(left, bottom, width, height);
+          Renderer.setScissor(left, bottom, width, height);
+          Renderer.setScissorTest(true);
+
+          camera.aspect = width / height;
+          camera.updateProjectionMatrix();
+
+          Renderer.render(Scene, camera);
+        }
+      }
   }
+
+
+  //Render scene loop
+  animate();
 
 
 
   //event Handlers
-  Settings.win.addEventListener('resize', Controller.handleWindowResize(Renderer, Camera, Settings.win), false);
+  // Settings.win.addEventListener('resize', Controller.handleWindowResize(Renderer, Camera, Settings.win), false);
 }
 
 
