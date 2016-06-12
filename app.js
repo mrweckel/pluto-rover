@@ -16,8 +16,8 @@ PlutoRover.Settings = function() {
       bottom: 0,
       width: 0.5,
       height: 1.0,
-      eye: [0,0,30],
-      subject: [0, 40, 0]
+      eye: [0,25,15],
+      subject: [0, 25, 0]
     },
     {
       left: 0.5,
@@ -174,8 +174,6 @@ PlutoRover.Hills.prototype = {
     var widthSegments  = 100;
     var heightSegments = 100;
 
-    console.log(radius);
-
     var geom = new THREE.SphereGeometry(radius, widthSegments, heightSegments);
     var mat  = new THREE.MeshLambertMaterial({color: 0x7E89C1});
 
@@ -212,9 +210,9 @@ PlutoRover.Ship.prototype = {
 
 PlutoRover.Crystal = function() {
 
-  this.width = 0.25;
-  this.height = 0.25;
-  this.depth = 0.25;
+  this.width = .25;
+  this.height = .25;
+  this.depth = .25;
   this.posX = null;
   this.posY = null;
 
@@ -255,8 +253,25 @@ PlutoRover.Controller.prototype = {
   },
 
   render: function(renderer, scene, camera) {
+
     requestAnimationFrame(this.render);
     renderer.render(scene, camera);
+  },
+
+  cloneVector: function(obj){
+
+    var newObj = {};
+
+    for(var key in obj){
+
+      if(obj.hasOwnProperty(key)){
+
+        newObj[key] = obj[key];
+      }
+    }
+
+    var vector = new THREE.Vector3(newObj.x, newObj.y, newObj.z);
+    return vector;
   }
 }
 
@@ -286,8 +301,8 @@ function init() {
     var CamSettings = new PlutoRover.CameraSettings(Settings.screenWidth, Settings.screenHeight);
     var Camera = new THREE.PerspectiveCamera(CamSettings.fov, CamSettings.aspectRatio, CamSettings.nearPlane, CamSettings.farPlane);
 
-    var vector = new THREE.Vector3(0, 40, 0);
-    Controller.setCameraPosition(Camera, 0, 0, 30);
+    var vector = new THREE.Vector3(0, 25, 0);
+    Controller.setCameraPosition(Camera, 0, 25, 17);
 
     Camera.lookAt(vector);
 
@@ -312,8 +327,6 @@ function init() {
 
       Cameras.push(camera); //make camera available outside loop
     }
-
-    console.log(Cameras);
   }
 
   //for debug purposes
@@ -356,7 +369,6 @@ function init() {
   //Hills
   var hills = new PlutoRover.Hills;
   var hill_01 = hills.createHill();
-  console.log(hill_01);
 
   hill_01.position.x = -10;
   hill_01.position.y =  20;
@@ -366,7 +378,6 @@ function init() {
 
   //Planet
   var Pluto = new PlutoRover.Planet().createLambertMesh();
-
   // position the sphere
   Pluto.position.x = 0;
   Pluto.position.y = 0;
@@ -380,11 +391,12 @@ function init() {
   //Add Crystals
   var Crystal = new PlutoRover.Crystal();
 
-  Crystal.position.x = 1;
+  Crystal.name = 'Crystal-01';
+  Crystal.position.x = 0;
   Crystal.position.y = 25;
   Crystal.position.z = 10;
 
-  console.log(Crystal);
+  console.log(Crystal.geometry.vertices);
   Scene.add(Crystal);
 
   var group = new THREE.Group();
@@ -392,16 +404,16 @@ function init() {
   group.add(Crystal);
 
   Scene.add(group);
-  console.log(group);
 
   //Ship
   var Ship = new PlutoRover.Ship().build();
+  var intersectable = [Ship];
 
   Ship.position.x = 0;
-  Ship.position.y = 3.75;
-  Ship.position.z = 26.25;
+  Ship.position.y = 24.5;
+  Ship.position.z = 11;
 
-  Ship.rotation.x = 20;
+  Ship.rotation.x = .25;
 
   Scene.add(Ship);
 
@@ -468,10 +480,45 @@ function init() {
 
   function animate() {
 
+    update();
     render();
 
     requestAnimationFrame(animate);
   }
+
+  var test = 0
+
+
+  function update() {
+
+    //Collision detection taken from http://stemkoski.github.io/Three.js/Collision-Detection.html
+    var originPoint = Controller.cloneVector(Crystal.position);
+    var verticesLength = Crystal.geometry.vertices.length;
+    // console.log(Ship.position);
+
+    for(var i = 0; i < verticesLength; i++) {
+
+      var localVertex = Controller.cloneVector(Crystal.geometry.vertices[i]);//why clone?
+      var globalVertex = localVertex.applyMatrix4(Crystal.matrix);
+      var directionVector = globalVertex.sub(Crystal.position);
+
+      var ray = new THREE.Raycaster(originPoint, Controller.cloneVector(directionVector));
+      var collisionResults = ray.intersectObjects(intersectable);
+      if(collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
+        console.log('HIT');
+      }
+
+
+      if(test < 1){
+        console.log(globalVertex);
+
+        test ++;
+      }
+
+      // console.log(directionVector, Crystal.position);
+    }
+  }
+
 
   function render() {
 
@@ -515,10 +562,3 @@ function init() {
   //event Handlers
   // Settings.win.addEventListener('resize', Controller.handleWindowResize(Renderer, Camera, Settings.win), false);
 }
-
-
-//to do
-// create flight pattern for Ship
-// group together objects
-//create points
-
