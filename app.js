@@ -195,6 +195,7 @@ PlutoRover.Ship = function() {
     this.width = 1;
     this.height = 0.5;
     this.depth = 2;
+    this.name = 'Rover 4000'
 }
 
 PlutoRover.Ship.prototype = {
@@ -203,6 +204,8 @@ PlutoRover.Ship.prototype = {
     var cubeGeometry = new THREE.BoxGeometry(this.width, this.height, this.depth);
     var cubeMaterial = new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: false});
     var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+
+    cube.name = this.name;
 
     return cube;
   }
