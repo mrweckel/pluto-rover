@@ -395,12 +395,13 @@ function init() {
   var Crystal = new PlutoRover.Crystal();
 
   Crystal.name = 'Crystal-01';
-  Crystal.position.x = 0;
+  Crystal.position.x = 2;
   Crystal.position.y = 25;
   Crystal.position.z = 10;
 
   console.log(Crystal.geometry.vertices);
   Scene.add(Crystal);
+  var intersectable = [Crystal];
 
   var group = new THREE.Group();
   group.add(Pluto);
@@ -410,7 +411,6 @@ function init() {
 
   //Ship
   var Ship = new PlutoRover.Ship().build();
-  var intersectable = [Ship];
 
   Ship.position.x = 0;
   Ship.position.y = 24.5;
@@ -430,11 +430,10 @@ function init() {
 
   //TEMP event handler location
   function handleKeyboardRequest(e) {
-    console.log(e);
-    switch(e.keyCode) {
-      case 39:
-        console.log('you are flying right');
 
+    switch(e.keyCode) {
+
+      case 39:
         if(Camera.rotation.z >= .3){
           Camera.rotation.z === .4;
           Ship.position.x === 1.5;
@@ -448,8 +447,8 @@ function init() {
           createjs.Tween.get(Camera.rotation).to({z: Camera.rotation.z+.05},100);
         }
         break;
+
       case 37:
-        console.log('you are flying left');
         if(Camera.rotation.z <= -.3){
           Camera.rotation.z === -.4;
           Ship.position.x === -1.5;
@@ -463,10 +462,8 @@ function init() {
         }
          break;
       case 38:
-        console.log('you are flying down');
         break;
       case 40:
-        console.log('you are flying up');
         break;
       default:
         break;
@@ -495,30 +492,32 @@ function init() {
   function update() {
 
     //Collision detection taken from http://stemkoski.github.io/Three.js/Collision-Detection.html
-    var originPoint = Controller.cloneVector(Crystal.position);
-    var verticesLength = Crystal.geometry.vertices.length;
-    // console.log(Ship.position);
+
+    //Need to understand raycasting more
+    var originPoint = Controller.cloneVector(Ship.position);
+    var verticesLength = Ship.geometry.vertices.length;
 
     for(var i = 0; i < verticesLength; i++) {
 
-      var localVertex = Controller.cloneVector(Crystal.geometry.vertices[i]);//why clone?
-      var globalVertex = localVertex.applyMatrix4(Crystal.matrix);
-      var directionVector = globalVertex.sub(Crystal.position);
+      var localVertex = Controller.cloneVector(Ship.geometry.vertices[i]);//why clone?
+      var globalVertex = localVertex.applyMatrix4(Ship.matrix);
+      var directionVector = globalVertex.sub(Ship.position);
+      directionVector.parent = Crystal;
 
       var ray = new THREE.Raycaster(originPoint, Controller.cloneVector(directionVector));
       var collisionResults = ray.intersectObjects(intersectable);
       if(collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
-        console.log('HIT');
+
+        var capturedObj = Scene.getObjectByName(Crystal.name);
+
+        group.remove(capturedObj);
       }
 
 
-      if(test < 1){
-        console.log(globalVertex);
-
+      if(test < 3){
+        console.log(Scene.getObjectByName(directionVector.parent.name));
         test ++;
       }
-
-      // console.log(directionVector, Crystal.position);
     }
   }
 
