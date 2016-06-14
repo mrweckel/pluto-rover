@@ -1,7 +1,7 @@
 // pseudo
 
-//Add function to handle what happens after collision
-//Create crystal generator
+// -- Add function to handle what happens after collision
+// -- Create multiple crystal generator
 // -- Understand collisions/Raycasting
 
 

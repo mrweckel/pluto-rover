@@ -34,8 +34,10 @@ PlutoRover.Settings = function() {
       height: 0.5,
       eye: [0,0,60],
       subject: [0, 20, 0]
-    },
-  ]
+    }
+  ];
+  this.liveCrystals = [];
+  this.totalCrystals = 0;
 };
 
 PlutoRover.Settings.prototype = {
@@ -211,7 +213,7 @@ PlutoRover.Ship.prototype = {
   }
 }
 
-PlutoRover.Crystal = function() {
+PlutoRover.Crystal = function(name) {
 
   this.width = .25;
   this.height = .25;
@@ -223,10 +225,13 @@ PlutoRover.Crystal = function() {
   var material = new THREE.MeshLambertMaterial({opacity: 0.75, color: 0xff0000});
   var mesh =  new THREE.Mesh(cubeGeometry, material);
 
+  mesh.name = name;
+
   return mesh;
 }
 
 PlutoRover.Crystal.prototype = {
+
 
 }
 
@@ -399,8 +404,6 @@ function init() {
   Crystal.position.y = 25;
   Crystal.position.z = 10;
 
-  console.log(Crystal.geometry.vertices);
-  Scene.add(Crystal);
   var intersectable = [Crystal];
 
   var group = new THREE.Group();
@@ -469,6 +472,29 @@ function init() {
         break;
     }
   }
+
+  function spawnCrystal() {
+
+    Settings.totalCrystals ++;
+    var nextNumber = Settings.totalCrystals;
+    var crystalName = 'crystal-' + nextNumber;
+
+    var newCrystal = new PlutoRover.Crystal(crystalName);
+
+    var min = -4;
+    var max = 4;
+
+    newCrystal.posX = Math.floor(Math.random() * (max - min + 1)) + min;
+    newCrystal.posY = 25;
+    newCrystal.posZ = 10;
+
+    group.add(newCrystal);
+    console.log(group);
+  }
+
+  setInterval(function() {
+    spawnCrystal();
+  }, 500);
 
   function returnToCenter(){
 
