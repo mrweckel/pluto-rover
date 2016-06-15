@@ -9,7 +9,7 @@ PlutoRover.Settings = function() {
   this.screenHeight = window.screen.availHeight;
   this.container = this.doc.getElementById('pluto');
   this.step = 0;
-  this.devMode = false;
+  this.devMode = true;
   this.viewPorts = [
     {
       left: 0,
@@ -402,7 +402,7 @@ function init() {
   Crystal.name = 'Crystal-01';
   Crystal.position.x = 2;
   Crystal.position.y = 25;
-  Crystal.position.z = 10;
+  Crystal.position.z = 6;
 
   var intersectable = [Crystal];
 
@@ -484,11 +484,12 @@ function init() {
     var min = -4;
     var max = 4;
 
-    newCrystal.posX = Math.floor(Math.random() * (max - min + 1)) + min;
-    newCrystal.posY = 25;
-    newCrystal.posZ = 10;
+    newCrystal.position.x = Math.floor(Math.random() * (max - min + 1)) + min;
+    newCrystal.position.y = 25;
+    newCrystal.position.z = 10;
 
     group.add(newCrystal);
+    // Scene.add(newCrystal)
     console.log(group);
   }
 
