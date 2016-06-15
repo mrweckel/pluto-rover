@@ -36,8 +36,10 @@ PlutoRover.Settings = function() {
       subject: [0, 20, 0]
     }
   ];
+  //These do not belong here. Need to move.
   this.liveCrystals = [];
   this.totalCrystals = 0;
+  this.crystalGroups = [];
 };
 
 PlutoRover.Settings.prototype = {
@@ -473,6 +475,11 @@ function init() {
     }
   }
 
+  // 1- Add crystals in groups of four, just slightly off its x and z axis.
+  // 2- Going to have to work out an equation here that accounts for the round surface to make placing the crystals easier.
+  var crystalGroup = [];
+  var firstCrystalInGroup = true;
+
   function spawnCrystal() {
 
     Settings.totalCrystals ++;
@@ -481,16 +488,38 @@ function init() {
 
     var newCrystal = new PlutoRover.Crystal(crystalName);
 
+    //set min and max x positioning. Needs to be moved
     var min = -4;
     var max = 4;
 
-    newCrystal.position.x = Math.floor(Math.random() * (max - min + 1)) + min;
-    newCrystal.position.y = 25;
-    newCrystal.position.z = 10;
+    if(firstCrystalInGroup){
+      var currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
+      newCrystal.position.x = currentCrystalXPos;
+      newCrystal.position.y = 25;
+      newCrystal.position.z = 10;
+    } else {
+      currentCrystalXPos += .05;
+      newCrystal.position.x = firstCrystalXPos;
+      newCrystal.position.y = 25;
+      newCrystal.position.z = 10;
+    }
+
+    if(crystalGroup < 4) {
+      crystalGroup.push(newCrystal);
+      firstCrystalInGroup = false;
+    } else {
+      Settings.crystalGroups.push(crystalGroup);
+      crystalGroup = [];
+      firstCrystalInGroup = true;
+    }
+
+
+
+
+
+
 
     group.add(newCrystal);
-    // Scene.add(newCrystal)
-    console.log(group);
   }
 
   setInterval(function() {
