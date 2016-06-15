@@ -9,7 +9,7 @@ PlutoRover.Settings = function() {
   this.screenHeight = window.screen.availHeight;
   this.container = this.doc.getElementById('pluto');
   this.step = 0;
-  this.devMode = true;
+  this.devMode = false;
   this.viewPorts = [
     {
       left: 0,
@@ -40,6 +40,7 @@ PlutoRover.Settings = function() {
   this.liveCrystals = [];
   this.totalCrystals = 0;
   this.crystalGroups = [];
+  this.numOfCrystalGroups = 1;
 };
 
 PlutoRover.Settings.prototype = {
@@ -408,11 +409,11 @@ function init() {
 
   var intersectable = [Crystal];
 
-  var group = new THREE.Group();
-  group.add(Pluto);
-  group.add(Crystal);
+  var mainGroup = new THREE.Group();
+  mainGroup.add(Pluto);
+  mainGroup.add(Crystal);
 
-  Scene.add(group);
+  Scene.add(mainGroup);
 
   //Ship
   var Ship = new PlutoRover.Ship().build();
@@ -477,7 +478,14 @@ function init() {
 
   // 1- Add crystals in groups of four, just slightly off its x and z axis.
   // 2- Going to have to work out an equation here that accounts for the round surface to make placing the crystals easier.
-  var crystalGroup = [];
+  var crystalGroup = new THREE.Group();
+  crystalGroup.name = 'crystal-group-' + Settings.numOfCrystalGroups;
+  mainGroup.add(crystalGroup);
+
+  var currentCrystalXPos;
+  var currentCrystalYPos = 25;
+  var currentCrystalZPos = 10;
+
   var firstCrystalInGroup = true;
 
   function spawnCrystal() {
@@ -493,38 +501,39 @@ function init() {
     var max = 4;
 
     if(firstCrystalInGroup){
-      var currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
+      console.log('here ?')
+      currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
       newCrystal.position.x = currentCrystalXPos;
-      newCrystal.position.y = 25;
-      newCrystal.position.z = 10;
+      newCrystal.position.y = currentCrystalYPos;
+      newCrystal.position.z = currentCrystalZPos;
     } else {
-      currentCrystalXPos += .05;
-      newCrystal.position.x = firstCrystalXPos;
-      newCrystal.position.y = 25;
-      newCrystal.position.z = 10;
+      currentCrystalXPos -= .5;
+      currentCrystalYPos += .1;
+      currentCrystalZPos -= 1;
+      newCrystal.position.x = currentCrystalXPos;
+      newCrystal.position.y = currentCrystalYPos;
+      newCrystal.position.z = currentCrystalZPos;
     }
 
-    if(crystalGroup < 4) {
-      crystalGroup.push(newCrystal);
+    if(crystalGroup.children.length < 4) {
+      crystalGroup.add(newCrystal);
       firstCrystalInGroup = false;
+      console.log(crystalGroup);
     } else {
-      Settings.crystalGroups.push(crystalGroup);
-      crystalGroup = [];
+      mainGroup.add(crystalGroup);
+      Settings.numOfCrystalGroups++;
+      crystalGroup = new THREE.Group();
+      crystalGroup.name = 'crystal-group-' + Settings.numOfCrystalGroups;
       firstCrystalInGroup = true;
+      // clearInterval(interval);
     }
-
-
-
-
-
-
-
-    group.add(newCrystal);
   }
 
-  setInterval(function() {
+  var interval = setInterval(function() {
     spawnCrystal();
   }, 500);
+
+  spawnCrystal();
 
   function returnToCenter(){
 
@@ -566,13 +575,7 @@ function init() {
 
         var capturedObj = Scene.getObjectByName(Crystal.name);
 
-        group.remove(capturedObj);
-      }
-
-
-      if(test < 3){
-        console.log(Scene.getObjectByName(directionVector.parent.name));
-        test ++;
+        MainGroup.remove(capturedObj);
       }
     }
   }
@@ -580,7 +583,7 @@ function init() {
 
   function render() {
 
-      group.rotation.x = Settings.step += 0.01;
+      mainGroup.rotation.x = Settings.step += 0.01;
 
       if(Settings.devMode != true){
 
