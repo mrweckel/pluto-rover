@@ -403,9 +403,9 @@ function init() {
   var Crystal = new PlutoRover.Crystal();
 
   Crystal.name = 'Crystal-01';
-  Crystal.position.x = 2;
-  Crystal.position.y = 25;
-  Crystal.position.z = 6;
+  Crystal.position.x = -4;
+  Crystal.position.y = 22.516;
+  Crystal.position.z = 13;
 
   var intersectable = [Crystal];
 
@@ -529,11 +529,10 @@ function init() {
     }
   }
 
-  var interval = setInterval(function() {
-    spawnCrystal();
-  }, 500);
+  // var interval = setInterval(function() {
+  //   spawnCrystal();
+  // }, 500);
 
-  spawnCrystal();
 
   function returnToCenter(){
 
@@ -575,7 +574,7 @@ function init() {
 
         var capturedObj = Scene.getObjectByName(Crystal.name);
 
-        MainGroup.remove(capturedObj);
+        mainGroup.remove(capturedObj);
       }
     }
   }
