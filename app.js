@@ -10,6 +10,7 @@ PlutoRover.Settings = function() {
   this.container = this.doc.getElementById('pluto');
   this.step = 0;
   this.devMode = false;
+  //setting the multiple views for devmode
   this.viewPorts = [
     {
       left: 0,
@@ -41,6 +42,7 @@ PlutoRover.Settings = function() {
   this.totalCrystals = 0;
   this.crystalGroups = [];
   this.numOfCrystalGroups = 1;
+  this.intersectableObjects = [];
 };
 
 PlutoRover.Settings.prototype = {
@@ -407,7 +409,7 @@ function init() {
   Crystal.position.y = 22.516;
   Crystal.position.z = 13;
 
-  var intersectable = [Crystal];
+  Settings.intersectableObjects.push(Crystal);
 
   var mainGroup = new THREE.Group();
   mainGroup.add(Pluto);
@@ -468,16 +470,19 @@ function init() {
         }
          break;
       case 38:
+        createjs.Tween.get(Ship.position).to({y: Ship.position.y-.1},100);
+        createjs.Tween.get(Ship.rotation).to({x: Ship.rotation.x-.05},100);
         break;
       case 40:
+        createjs.Tween.get(Ship.position).to({y: Ship.position.y+.1},100);
+        createjs.Tween.get(Ship.rotation).to({x: Ship.rotation.x+.05},100);
         break;
       default:
         break;
     }
   }
 
-  // 1- Add crystals in groups of four, just slightly off its x and z axis.
-  // 2- Going to have to work out an equation here that accounts for the round surface to make placing the crystals easier.
+  // 1- This needs proper equations for placing objects on the surface of a sphere
   var crystalGroup = new THREE.Group();
   crystalGroup.name = 'crystal-group-' + Settings.numOfCrystalGroups;
   mainGroup.add(crystalGroup);
@@ -495,6 +500,10 @@ function init() {
     var crystalName = 'crystal-' + nextNumber;
 
     var newCrystal = new PlutoRover.Crystal(crystalName);
+    Settings.intersectableObjects.push(newCrystal);
+
+    console.log(Settings.intersectableObjects);
+
 
     //set min and max x positioning. Needs to be moved
     var min = -4;
@@ -525,13 +534,13 @@ function init() {
       crystalGroup = new THREE.Group();
       crystalGroup.name = 'crystal-group-' + Settings.numOfCrystalGroups;
       firstCrystalInGroup = true;
-      // clearInterval(interval);
+      clearInterval(interval);
     }
   }
 
-  // var interval = setInterval(function() {
-  //   spawnCrystal();
-  // }, 500);
+  var interval = setInterval(function() {
+    spawnCrystal();
+  }, 500);
 
 
   function returnToCenter(){
@@ -561,6 +570,7 @@ function init() {
     var originPoint = Controller.cloneVector(Ship.position);
     var verticesLength = Ship.geometry.vertices.length;
 
+
     for(var i = 0; i < verticesLength; i++) {
 
       var localVertex = Controller.cloneVector(Ship.geometry.vertices[i]);//why clone?
@@ -569,12 +579,15 @@ function init() {
       directionVector.parent = Crystal;
 
       var ray = new THREE.Raycaster(originPoint, Controller.cloneVector(directionVector));
-      var collisionResults = ray.intersectObjects(intersectable);
+      var collisionResults = ray.intersectObjects(Settings.intersectableObjects);
       if(collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
 
-        var capturedObj = Scene.getObjectByName(Crystal.name);
-
-        mainGroup.remove(capturedObj);
+        var capturedObj = collisionResults[0].object;
+        var capturedObjGroup = capturedObj.parent
+        if(capturedObj != null && capturedObjGroup != null){
+          console.log(capturedObjGroup);
+          capturedObjGroup.remove(capturedObj);
+        }
       }
     }
   }
