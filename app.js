@@ -526,7 +526,7 @@ function init() {
   // 1- This needs proper equations for placing objects on the surface of a sphere
   // 2- Also needs major clean up
   var crystalGroup = CrystalMaster.createGroup();
-  console.log(crystalGroup);
+  console.log(crystalGroup.children.length);
 
 
   //set min and max x positioning. Needs to be moved
@@ -554,6 +554,7 @@ function init() {
       newCrystal.position.x = currentCrystalXPos;
       newCrystal.position.y = currentCrystalYPos;
       newCrystal.position.z = currentCrystalZPos;
+      console.log(newCrystal);
     } else {
       currentCrystalXPos -= .5;
       newCrystal.position.x = currentCrystalXPos;
@@ -562,11 +563,11 @@ function init() {
       console.log(newCrystal);
     }
 
-    if(crystalGroup.children.length < 4) { //having issues here
+    if(crystalGroup.children.length < 4) { //having issues here89-8il/p
       crystalGroup.add(newCrystal);
       firstCrystalInGroup = false;
     } else {
-      var crystalGroup = CrystalMaster.createGroup();
+      crystalGroup = CrystalMaster.createGroup();
       CrystalMaster.numOfCrystalGroups++;
 
       currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
