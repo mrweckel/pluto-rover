@@ -38,11 +38,6 @@ PlutoRover.Settings = function() {
     }
   ];
   //These do not belong here. Need to move.
-  this.liveCrystals = [];
-  this.totalCrystals = 0;
-  this.crystalGroups = [];
-  this.crystalQuadrants = [0,45,90,135,180,225,270,315];
-  this.numOfCrystalGroups = 1;
   this.intersectableObjects = [];
 };
 
@@ -227,6 +222,39 @@ PlutoRover.Ship.prototype = {
   }
 }
 
+PlutoRover.CrystalMaster = function(parent, settings) {
+
+  this.parent = parent;
+  this.appSettings = settings;
+
+  this.liveCrystals = [];
+  this.totalCrystals = 0;
+  this.crystalGroups = [];
+  this.numOfCrystalGroups = this.crystalGroups.length;
+  this.crystalQuadrants = [0,45,90,135,180,225,270,315];
+  this.currentQuadrant = null;
+}
+
+PlutoRover.CrystalMaster.prototype = {
+
+  createGroup: function() {
+
+    var group = new THREE.Group();
+    group.name = 'crystal-group-' + this.numOfCrystalGroups;
+    group.quadrant = this.appSettings.getRandom(this.crystalQuadrants); // this is a problem
+    this.currentQuadrant = group.quadrant;
+
+
+    var index = this.crystalQuadrants.indexOf(group.quadrant);
+    this.crystalQuadrants.splice(index, 1); //once quadrant is selected, remove from possibilities
+
+    this.crystalGroups.push(group);
+    this.parent.add(group);
+
+    return group;
+  }
+}
+
 PlutoRover.Crystal = function(name) {
 
   this.width = .25;
@@ -310,6 +338,11 @@ function init() {
   var Controller = new PlutoRover.Controller();
 
   var Cameras = []; //hold cameras created. Will be multiple if in devmode
+
+  var mainGroup = new THREE.Group(); //The Parent of all 3JS objects. This is a bad way to do it. Needs to change
+
+  //Crystals are the points the user collects.
+  var CrystalMaster = new PlutoRover.CrystalMaster(mainGroup, Settings);
 
 
   //add keyboard event listeners
@@ -420,7 +453,6 @@ function init() {
 
   Settings.intersectableObjects.push(Crystal);
 
-  var mainGroup = new THREE.Group();
   mainGroup.add(Pluto);
   mainGroup.add(Crystal);
 
@@ -493,28 +525,24 @@ function init() {
 
   // 1- This needs proper equations for placing objects on the surface of a sphere
   // 2- Also needs major clean up
-  var crystalGroup = new THREE.Group();
-  crystalGroup.name = 'crystal-group-' + Settings.numOfCrystalGroups;
-  crystalGroup.quadrant = Settings.getRandom(Settings.crystalQuadrants); //make sure crystals are not overlapping
-  var index = Settings.crystalQuadrants.indexOf(crystalGroup.quadrant);
-  Settings.crystalQuadrants.splice(index, 1); //once quadrant is selected, remove from possibilities
-  console.log(crystalGroup.quadrant, Settings.crystalQuadrants);
-  mainGroup.add(crystalGroup);
+  var crystalGroup = CrystalMaster.createGroup();
+  console.log(crystalGroup);
+
 
   //set min and max x positioning. Needs to be moved
   var min = -3;
   var max = 3;
   var hypotenuse = 26 + 0.5; //26 is hardcoded planet radius. Needs to change and 0.5 is so it isn't exactly on the planets surface
   var currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
-  var currentCrystalYPos = Math.sin(crystalGroup.quadrant) * hypotenuse;
-  var currentCrystalZPos = Math.cos(crystalGroup.quadrant) * hypotenuse;
+  var currentCrystalYPos = Math.sin(CrystalMaster.currentQuadrant) * hypotenuse;
+  var currentCrystalZPos = Math.cos(CrystalMaster.currentQuadrant) * hypotenuse;
 
   var firstCrystalInGroup = true;
 
   function spawnCrystal() {
 
-    Settings.totalCrystals ++;
-    var nextNumber = Settings.totalCrystals;
+    CrystalMaster.totalCrystals ++;
+    var nextNumber = CrystalMaster.totalCrystals;
     var crystalName = 'crystal-' + nextNumber;
 
     var newCrystal = new PlutoRover.Crystal(crystalName);
@@ -534,19 +562,13 @@ function init() {
       console.log(newCrystal);
     }
 
-    if(crystalGroup.children.length < 4) {
+    if(crystalGroup.children.length < 4) { //having issues here
       crystalGroup.add(newCrystal);
       firstCrystalInGroup = false;
-      console.log(crystalGroup);
     } else {
-      mainGroup.add(crystalGroup);
-      Settings.numOfCrystalGroups++;
-      crystalGroup = new THREE.Group();
-      crystalGroup.name = 'crystal-group-' + Settings.numOfCrystalGroups;
-      crystalGroup.quadrant = Settings.getRandom(Settings.crystalQuadrants);
-      var index = Settings.crystalQuadrants.indexOf(crystalGroup.quadrant);
-      Settings.crystalQuadrants.splice(index, 1);
-      console.log(crystalGroup.quadrant, Settings.crystalQuadrants);
+      var crystalGroup = CrystalMaster.createGroup();
+      CrystalMaster.numOfCrystalGroups++;
+
       currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
       currentCrystalYPos = Math.sin(crystalGroup.quadrant) * hypotenuse;
       currentCrystalZPos = Math.cos(crystalGroup.quadrant) * hypotenuse;
@@ -555,9 +577,13 @@ function init() {
     }
   }
 
-  var interval = setInterval(function() {
-    spawnCrystal();
-  }, 500);
+  var interval;
+  setTimeout(function(){
+    interval = setInterval(function() {
+      spawnCrystal();
+    }, 500);
+  },1000)
+
 
 
   function returnToCenter(){
