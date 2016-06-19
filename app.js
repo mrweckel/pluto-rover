@@ -41,6 +41,7 @@ PlutoRover.Settings = function() {
   this.liveCrystals = [];
   this.totalCrystals = 0;
   this.crystalGroups = [];
+  this.crystalQuadrants = [0,45,90,135,180,225,270,315];
   this.numOfCrystalGroups = 1;
   this.intersectableObjects = [];
 };
@@ -72,6 +73,14 @@ PlutoRover.Settings.prototype = {
 
     //Move camera to dev environment
     // moveCamera;
+    },
+
+    degreesToRadians: function(deg) {
+      return deg * (MATH.PI/180);
+    },
+
+    getRandom: function(arr) {
+      return arr[Math.floor(Math.random()*arr.length)];
     }
 };
 
@@ -483,13 +492,22 @@ function init() {
   }
 
   // 1- This needs proper equations for placing objects on the surface of a sphere
+  // 2- Also needs major clean up
   var crystalGroup = new THREE.Group();
   crystalGroup.name = 'crystal-group-' + Settings.numOfCrystalGroups;
+  crystalGroup.quadrant = Settings.getRandom(Settings.crystalQuadrants); //make sure crystals are not overlapping
+  var index = Settings.crystalQuadrants.indexOf(crystalGroup.quadrant);
+  Settings.crystalQuadrants.splice(index, 1); //once quadrant is selected, remove from possibilities
+  console.log(crystalGroup.quadrant, Settings.crystalQuadrants);
   mainGroup.add(crystalGroup);
 
-  var currentCrystalXPos;
-  var currentCrystalYPos = 25;
-  var currentCrystalZPos = 10;
+  //set min and max x positioning. Needs to be moved
+  var min = -3;
+  var max = 3;
+  var hypotenuse = 26 + 0.5; //26 is hardcoded planet radius. Needs to change and 0.5 is so it isn't exactly on the planets surface
+  var currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
+  var currentCrystalYPos = Math.sin(crystalGroup.quadrant) * hypotenuse;
+  var currentCrystalZPos = Math.cos(crystalGroup.quadrant) * hypotenuse;
 
   var firstCrystalInGroup = true;
 
@@ -502,13 +520,6 @@ function init() {
     var newCrystal = new PlutoRover.Crystal(crystalName);
     Settings.intersectableObjects.push(newCrystal);
 
-    console.log(Settings.intersectableObjects);
-
-
-    //set min and max x positioning. Needs to be moved
-    var min = -4;
-    var max = 4;
-
     if(firstCrystalInGroup){
       console.log('here ?')
       currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -517,11 +528,10 @@ function init() {
       newCrystal.position.z = currentCrystalZPos;
     } else {
       currentCrystalXPos -= .5;
-      currentCrystalYPos += .1;
-      currentCrystalZPos -= 1;
       newCrystal.position.x = currentCrystalXPos;
       newCrystal.position.y = currentCrystalYPos;
       newCrystal.position.z = currentCrystalZPos;
+      console.log(newCrystal);
     }
 
     if(crystalGroup.children.length < 4) {
@@ -533,8 +543,15 @@ function init() {
       Settings.numOfCrystalGroups++;
       crystalGroup = new THREE.Group();
       crystalGroup.name = 'crystal-group-' + Settings.numOfCrystalGroups;
+      crystalGroup.quadrant = Settings.getRandom(Settings.crystalQuadrants);
+      var index = Settings.crystalQuadrants.indexOf(crystalGroup.quadrant);
+      Settings.crystalQuadrants.splice(index, 1);
+      console.log(crystalGroup.quadrant, Settings.crystalQuadrants);
+      currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
+      currentCrystalYPos = Math.sin(crystalGroup.quadrant) * hypotenuse;
+      currentCrystalZPos = Math.cos(crystalGroup.quadrant) * hypotenuse;
       firstCrystalInGroup = true;
-      clearInterval(interval);
+      // clearInterval(interval);
     }
   }
 
