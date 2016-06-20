@@ -3,13 +3,13 @@
 var PlutoRover = {};
 
 PlutoRover.Settings = function() {
+  this.devMode = false;
   this.doc = document;
   this.win = window;
   this.screenWidth = window.screen.availWidth;
   this.screenHeight = window.screen.availHeight;
   this.container = this.doc.getElementById('pluto');
   this.step = 0;
-  this.devMode = false;
   //setting the multiple views for devmode
   this.viewPorts = [
     {
@@ -232,8 +232,10 @@ PlutoRover.CrystalMaster = function(parent, settings) {
   this.crystalGroups = [];
   this.numOfCrystalGroups = this.crystalGroups.length;
   this.crystalQuadrants = [0,45,90,135,180,225,270,315];
-  this.currentQuadrant = null;
+  this.currentDegree = null;
+
 }
+
 
 PlutoRover.CrystalMaster.prototype = {
 
@@ -242,7 +244,7 @@ PlutoRover.CrystalMaster.prototype = {
     var group = new THREE.Group();
     group.name = 'crystal-group-' + this.numOfCrystalGroups;
     group.quadrant = this.appSettings.getRandom(this.crystalQuadrants); // this is a problem
-    this.currentQuadrant = group.quadrant;
+    this.currentDegree = group.quadrant;
 
 
     var index = this.crystalQuadrants.indexOf(group.quadrant);
@@ -252,6 +254,22 @@ PlutoRover.CrystalMaster.prototype = {
     this.parent.add(group);
 
     return group;
+  },
+
+  setChildPosition: function(crystal) {
+
+    // var deg = this.crystal.first ? this.currentDegree : this.currentDegree - 1;
+
+     //Makes sure that crystals are not placed outside of the ships x flight radius
+    var minXPosition = -3;
+    var maxXPosition = 3;
+
+    //26 is hardcoded planet radius. Needs to change and 0.5 is so it isn't exactly on the planets surface
+    var distFromPlanetCenter = 26 + 0.5; //aka hypotenuse
+
+    crystal.position.x = Math.floor(Math.random() * (max - min + 1)) + min;
+    crystal.position.y = Math.sin(newDeg) * distFromPlanetCenter;
+    crystal.position.z = Math.cos(newDeg) * distFromPlanetCenter;
   }
 }
 
@@ -534,8 +552,8 @@ function init() {
   var max = 3;
   var hypotenuse = 26 + 0.5; //26 is hardcoded planet radius. Needs to change and 0.5 is so it isn't exactly on the planets surface
   var currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
-  var currentCrystalYPos = Math.sin(CrystalMaster.currentQuadrant) * hypotenuse;
-  var currentCrystalZPos = Math.cos(CrystalMaster.currentQuadrant) * hypotenuse;
+  var currentCrystalYPos = Math.sin(CrystalMaster.currentDegree) * hypotenuse;
+  var currentCrystalZPos = Math.cos(CrystalMaster.currentDegree) * hypotenuse;
 
   var firstCrystalInGroup = true;
 
@@ -563,7 +581,7 @@ function init() {
       console.log(newCrystal);
     }
 
-    if(crystalGroup.children.length < 4) { //having issues here89-8il/p
+    if(crystalGroup.children.length < 4) {
       crystalGroup.add(newCrystal);
       firstCrystalInGroup = false;
     } else {
@@ -639,7 +657,7 @@ function init() {
 
   function render() {
 
-      mainGroup.rotation.x = Settings.step += 0.01;
+      mainGroup.rotation.x = Settings.step += 0.015;
 
       if(Settings.devMode != true){
 

@@ -1,13 +1,15 @@
 // pseudo
 
+// -- Make better check for first crystal in group
+// -- Adjust multiple crystal generator to better place along a curve
 // -- Add function to handle what happens after collision
-// -- Create multiple crystal generator
 // -- Understand collisions/Raycasting
 
 
 
 
 // DONE
+// -- Create multiple crystal generator -- DONE
 // -- Add basic collision detection -- DONE
 // -- Add crystals. Figure how to group with planet -- DONE
 // -- Add event listeners for keys -- DONE
