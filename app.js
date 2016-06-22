@@ -253,11 +253,10 @@ PlutoRover.CrystalMaster.prototype = {
     this.crystalGroups.push(group);
     this.parent.add(group);
 
-    console.log(this.currentDegree);
     return group;
   },
 
-  setChildPosition: function(crystal) {
+  setChildPosition: function(crystal, firstInGroup) {
 
     var xPos;
     var that = this;
@@ -265,14 +264,18 @@ PlutoRover.CrystalMaster.prototype = {
     //Makes sure that crystals are not placed outside of the ships x flight radius
     var min = -3;
     var max = 3;
-     console.log(crystal);
     if(crystal.first) {
-      console.log('first');
       xPos = Math.floor(Math.random() * (max - min + 1)) + min;
     } else {
+      //This is all f'd. There has to be a better way to do this.
+      //It is not even working as expected. Need to find the previous siblings xPos and subtract from that
+      var previousSiblingPosition = crystal.parent.children.length - 1;
+      xPos = crystal.parent.children[previousSiblingPosition];
       that.currentDegree--;
-      xPos--;
+      xPos -= 0.1;
     }
+
+    console.log(crystal);
 
 
     //26 is hardcoded planet radius. Needs to change and 0.5 is so it isn't exactly on the planets surface
@@ -292,13 +295,13 @@ PlutoRover.Crystal = function(name) {
   this.posX = null;
   this.posY = null;
 
-  this.first = true;
-
   var cubeGeometry = new THREE.BoxGeometry(this.width, this.height, this.depth);
   var material = new THREE.MeshLambertMaterial({opacity: 0.75, color: 0xff0000});
   var mesh =  new THREE.Mesh(cubeGeometry, material);
 
+  //set mesh(crystal) properties
   mesh.name = name;
+  mesh.first = true;
 
   return mesh;
 }
@@ -557,8 +560,6 @@ function init() {
   // 1- This needs proper equations for placing objects on the surface of a sphere
   // 2- Also needs major clean up
   var crystalGroup = CrystalMaster.createGroup();
-  console.log(crystalGroup.children.length);
-
 
   //set min and max x positioning. Needs to be moved
   var min = -3;
@@ -579,21 +580,11 @@ function init() {
     var newCrystal = new PlutoRover.Crystal(crystalName);
     Settings.intersectableObjects.push(newCrystal);
 
-    if(newCrystal.first){
-      console.log('here ?')
-      currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
-      CrystalMaster.setChildPosition(newCrystal);
-      console.log(newCrystal);
-    } else {
-      currentCrystalXPos -= .5;
-      CrystalMaster.setChildPosition(newCrystal);
-      console.log(newCrystal);
-    }
-
-    if(crystalGroup !== 0){newCrystal.first = false}
+    if(crystalGroup.children.length !== 0){newCrystal.first = false}
 
     if(crystalGroup.children.length < 4) {
       crystalGroup.add(newCrystal);
+      CrystalMaster.setChildPosition(newCrystal);
     } else {
       crystalGroup = CrystalMaster.createGroup();
       CrystalMaster.numOfCrystalGroups++;
