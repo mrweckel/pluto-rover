@@ -253,23 +253,34 @@ PlutoRover.CrystalMaster.prototype = {
     this.crystalGroups.push(group);
     this.parent.add(group);
 
+    console.log(this.currentDegree);
     return group;
   },
 
   setChildPosition: function(crystal) {
 
-    // var deg = this.crystal.first ? this.currentDegree : this.currentDegree - 1;
+    var xPos;
+    var that = this;
 
-     //Makes sure that crystals are not placed outside of the ships x flight radius
-    var minXPosition = -3;
-    var maxXPosition = 3;
+    //Makes sure that crystals are not placed outside of the ships x flight radius
+    var min = -3;
+    var max = 3;
+     console.log(crystal);
+    if(crystal.first) {
+      console.log('first');
+      xPos = Math.floor(Math.random() * (max - min + 1)) + min;
+    } else {
+      that.currentDegree--;
+      xPos--;
+    }
+
 
     //26 is hardcoded planet radius. Needs to change and 0.5 is so it isn't exactly on the planets surface
     var distFromPlanetCenter = 26 + 0.5; //aka hypotenuse
 
-    crystal.position.x = Math.floor(Math.random() * (max - min + 1)) + min;
-    crystal.position.y = Math.sin(newDeg) * distFromPlanetCenter;
-    crystal.position.z = Math.cos(newDeg) * distFromPlanetCenter;
+    crystal.position.x = xPos;
+    crystal.position.y = Math.sin(that.currentDegree) * distFromPlanetCenter;
+    crystal.position.z = Math.cos(that.currentDegree) * distFromPlanetCenter;
   }
 }
 
@@ -280,6 +291,8 @@ PlutoRover.Crystal = function(name) {
   this.depth = .25;
   this.posX = null;
   this.posY = null;
+
+  this.first = true;
 
   var cubeGeometry = new THREE.BoxGeometry(this.width, this.height, this.depth);
   var material = new THREE.MeshLambertMaterial({opacity: 0.75, color: 0xff0000});
@@ -566,24 +579,21 @@ function init() {
     var newCrystal = new PlutoRover.Crystal(crystalName);
     Settings.intersectableObjects.push(newCrystal);
 
-    if(firstCrystalInGroup){
+    if(newCrystal.first){
       console.log('here ?')
       currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
-      newCrystal.position.x = currentCrystalXPos;
-      newCrystal.position.y = currentCrystalYPos;
-      newCrystal.position.z = currentCrystalZPos;
+      CrystalMaster.setChildPosition(newCrystal);
       console.log(newCrystal);
     } else {
       currentCrystalXPos -= .5;
-      newCrystal.position.x = currentCrystalXPos;
-      newCrystal.position.y = currentCrystalYPos;
-      newCrystal.position.z = currentCrystalZPos;
+      CrystalMaster.setChildPosition(newCrystal);
       console.log(newCrystal);
     }
 
+    if(crystalGroup !== 0){newCrystal.first = false}
+
     if(crystalGroup.children.length < 4) {
       crystalGroup.add(newCrystal);
-      firstCrystalInGroup = false;
     } else {
       crystalGroup = CrystalMaster.createGroup();
       CrystalMaster.numOfCrystalGroups++;
@@ -591,7 +601,6 @@ function init() {
       currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
       currentCrystalYPos = Math.sin(crystalGroup.quadrant) * hypotenuse;
       currentCrystalZPos = Math.cos(crystalGroup.quadrant) * hypotenuse;
-      firstCrystalInGroup = true;
       // clearInterval(interval);
     }
   }
