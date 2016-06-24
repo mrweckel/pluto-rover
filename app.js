@@ -256,7 +256,7 @@ PlutoRover.CrystalMaster.prototype = {
     return group;
   },
 
-  setChildPosition: function(crystal, firstInGroup) {
+  setChildPosition: function(crystal, positionFromSibling) {
 
     var xPos;
     var that = this;
@@ -264,19 +264,19 @@ PlutoRover.CrystalMaster.prototype = {
     //Makes sure that crystals are not placed outside of the ships x flight radius
     var min = -3;
     var max = 3;
-    if(crystal.first) {
+
+    if (positionFromSibling == null) {
       xPos = Math.floor(Math.random() * (max - min + 1)) + min;
+      console.log('setting first pos');
     } else {
       //This is all f'd. There has to be a better way to do this.
-      //It is not even working as expected. Need to find the previous siblings xPos and subtract from that
-      var previousSiblingPosition = crystal.parent.children.length - 1;
-      xPos = crystal.parent.children[previousSiblingPosition];
-      that.currentDegree--;
+      xPos = positionFromSibling;
+      that.currentDegree -= 10;
       xPos -= 0.1;
+      console.log('setting sibling pos');
     }
 
-    console.log(crystal);
-
+    console.log(crystal.position.x);
 
     //26 is hardcoded planet radius. Needs to change and 0.5 is so it isn't exactly on the planets surface
     var distFromPlanetCenter = 26 + 0.5; //aka hypotenuse
@@ -524,7 +524,7 @@ function init() {
           Ship.rotation.z === .2;
         } else {
 
-          createjs.Tween.get(Ship.position).to({x: Ship.position.x+.5},100);
+          createjs.Tween.get(Ship.position).to({x: Ship.position.x+1},100);
           createjs.Tween.get(Ship.rotation).to({y: Ship.rotation.y+.01},100);
           createjs.Tween.get(Ship.rotation).to({z: Ship.rotation.z-.025},100);
           createjs.Tween.get(Camera.rotation).to({z: Camera.rotation.z+.05},100);
@@ -538,7 +538,7 @@ function init() {
           Ship.rotation.y === -.05;
           Camera.rotation.z === -.4;
         } else {
-          createjs.Tween.get(Ship.position).to({x: Ship.position.x-.5},100);
+          createjs.Tween.get(Ship.position).to({x: Ship.position.x-1},100);
           createjs.Tween.get(Ship.rotation).to({y: Ship.rotation.y-.01},100);
           createjs.Tween.get(Ship.rotation).to({z: Ship.rotation.z+.025},100);
           createjs.Tween.get(Camera.rotation).to({z: Camera.rotation.z-.05},100);
@@ -560,16 +560,7 @@ function init() {
   // 1- This needs proper equations for placing objects on the surface of a sphere
   // 2- Also needs major clean up
   var crystalGroup = CrystalMaster.createGroup();
-
-  //set min and max x positioning. Needs to be moved
-  var min = -3;
-  var max = 3;
-  var hypotenuse = 26 + 0.5; //26 is hardcoded planet radius. Needs to change and 0.5 is so it isn't exactly on the planets surface
-  var currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
-  var currentCrystalYPos = Math.sin(CrystalMaster.currentDegree) * hypotenuse;
-  var currentCrystalZPos = Math.cos(CrystalMaster.currentDegree) * hypotenuse;
-
-  var firstCrystalInGroup = true;
+  var firstGroup = true;
 
   function spawnCrystal() {
 
@@ -580,20 +571,24 @@ function init() {
     var newCrystal = new PlutoRover.Crystal(crystalName);
     Settings.intersectableObjects.push(newCrystal);
 
-    if(crystalGroup.children.length !== 0){newCrystal.first = false}
+    var firstSiblingXPos;
 
-    if(crystalGroup.children.length < 4) {
+    //yeesh
+    if (CrystalMaster.numOfCrystalGroups === 0){
+      CrystalMaster.numOfCrystalGroups++;
       crystalGroup.add(newCrystal);
-      CrystalMaster.setChildPosition(newCrystal);
-    } else {
+      CrystalMaster.setChildPosition(newCrystal, null);
+    } else if (crystalGroup.children.length > 3){
       crystalGroup = CrystalMaster.createGroup();
       CrystalMaster.numOfCrystalGroups++;
-
-      currentCrystalXPos = Math.floor(Math.random() * (max - min + 1)) + min;
-      currentCrystalYPos = Math.sin(crystalGroup.quadrant) * hypotenuse;
-      currentCrystalZPos = Math.cos(crystalGroup.quadrant) * hypotenuse;
-      // clearInterval(interval);
+      crystalGroup.add(newCrystal);
+      CrystalMaster.setChildPosition(newCrystal, null);
+      firstSiblingXPos = newCrystal.position.x;
+    } else {
+      crystalGroup.add(newCrystal);
+      CrystalMaster.setChildPosition(newCrystal, firstSiblingXPos );
     }
+
   }
 
   var interval;
