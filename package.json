@@ -1,0 +1,19 @@
+{
+  "name": "pluto-rover",
+  "version": "1.0.0",
+  "description": "WebGL planetary explorer game",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrweckel/pluto-rover.git"
+  },
+  "author": "Matt Weckel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mrweckel/pluto-rover/issues"
+  },
+  "homepage": "https://github.com/mrweckel/pluto-rover#readme"
+}
