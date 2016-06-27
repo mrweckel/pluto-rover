@@ -1,5 +1,6 @@
 // pseudo
 
+// -- Implement gulp
 // -- Adjust multiple crystal generator to better place along a curve
 // -- Add function to handle what happens after collision
 // -- Understand collisions/Raycasting

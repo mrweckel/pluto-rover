@@ -10,11 +10,8 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     minimist = require('minimist'),
     autoprefixer = require('gulp-autoprefixer'),
-    mochaPhantomjs = require('gulp-mocha-phantomjs'),
     runSequence = require('run-sequence'),
     minifyCss = require('gulp-minify-css'),
-    glob = require('glob'),
-    gutil = require('gulp-util'),
     s3 = require('gulp-s3'),
     aws = JSON.parse(fs.readFileSync('aws.json'));
 
@@ -24,8 +21,7 @@ var gulp = require('gulp'),
 //Compile html
 gulp.task('compile-html', function(){
   console.log('...getting you that sweet sweet HTML');
-    return gulp.src('dev/*.jade')
-   .pipe(jade({}))
+    return gulp.src('dev/*.html')
    .pipe(gulp.dest('staging/'));
 });
 
