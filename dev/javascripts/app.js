@@ -91,8 +91,8 @@ PlutoRover.Colors = function() {
 PlutoRover.Colors.prototype = {};
 
 PlutoRover.Lights = function() {
-  this.hemisphereLight = new THREE.HemisphereLight(0x000000, 0x3F3F3F, .9);//Color 1, Color 2, Intensity
-  this.shadowLight = new THREE.DirectionalLight(0xffffff, .9);//Color, Intensity
+  this.hemisphereLight = new THREE.HemisphereLight(0x000000, 0x3F3F3F, 0.9);//Color 1, Color 2, Intensity
+  this.shadowLight = new THREE.DirectionalLight(0xffffff, 0.9);//Color, Intensity
 
   this.shadowLight.position.set(150, 350, 350);
 
@@ -119,7 +119,7 @@ PlutoRover.CameraSettings = function(width, height) {
   this.fov = 60;
   this.nearPlane = 1;
   this.farPlane = 10000;
-}
+};
 
 PlutoRover.CameraSettings.prototype = {};
 
@@ -171,11 +171,11 @@ PlutoRover.Planet.prototype = {
 
     return mesh;
   }
-}
+};
 
 PlutoRover.Hills = function() {
 
-}
+};
 
 PlutoRover.Hills.prototype = {
 
@@ -199,15 +199,15 @@ PlutoRover.Hills.prototype = {
 
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-}
+};
 
 PlutoRover.Ship = function() {
 
     this.width = 1;
     this.height = 0.5;
     this.depth = 2;
-    this.name = 'Rover 4000'
-}
+    this.name = 'Rover 4000';
+};
 
 PlutoRover.Ship.prototype = {
 
@@ -220,7 +220,7 @@ PlutoRover.Ship.prototype = {
 
     return cube;
   }
-}
+};
 
 PlutoRover.CrystalMaster = function(parent, settings) {
 
@@ -233,8 +233,7 @@ PlutoRover.CrystalMaster = function(parent, settings) {
   this.numOfCrystalGroups = this.crystalGroups.length;
   this.crystalQuadrants = [0,45,90,135,180,225,270,315];
   this.currentDegree = null;
-
-}
+};
 
 
 PlutoRover.CrystalMaster.prototype = {
@@ -265,7 +264,7 @@ PlutoRover.CrystalMaster.prototype = {
     var min = -3;
     var max = 3;
 
-    if (positionFromSibling == null) {
+    if (positionFromSibling === null) {
       xPos = Math.floor(Math.random() * (max - min + 1)) + min;
       console.log('setting first pos');
     } else {
@@ -285,15 +284,15 @@ PlutoRover.CrystalMaster.prototype = {
     crystal.position.y = Math.sin(that.currentDegree) * distFromPlanetCenter;
     crystal.position.z = Math.cos(that.currentDegree) * distFromPlanetCenter;
   }
-}
+};
 
 PlutoRover.Crystal = function(name) {
 
-  this.width = .25;
-  this.height = .25;
-  this.depth = .25;
-  this.posX = null;
-  this.posY = null;
+  this.width  = 0.25;
+  this.height = 0.25;
+  this.depth  = 0.25;
+  this.posX   = null;
+  this.posY   = null;
 
   var cubeGeometry = new THREE.BoxGeometry(this.width, this.height, this.depth);
   var material = new THREE.MeshLambertMaterial({opacity: 0.75, color: 0xff0000});
@@ -304,18 +303,14 @@ PlutoRover.Crystal = function(name) {
   mesh.first = true;
 
   return mesh;
-}
+};
 
 PlutoRover.Crystal.prototype = {
-
-
-}
-
-
+};
 
 PlutoRover.Controller = function() {
 
-}
+};
 
 PlutoRover.Controller.prototype = {
 
@@ -357,7 +352,7 @@ PlutoRover.Controller.prototype = {
     var vector = new THREE.Vector3(newObj.x, newObj.y, newObj.z);
     return vector;
   }
-}
+};
 
 
 document.addEventListener('DOMContentLoaded', init, false);
@@ -368,7 +363,7 @@ function init() {
   var Color      = new PlutoRover.Colors();
 
   var Scene      = new THREE.Scene();
-  var Fog        = new THREE.Fog(0x000000);;
+  var Fog        = new THREE.Fog(0x000000);
   var Controller = new PlutoRover.Controller();
 
   var Cameras = []; //hold cameras created. Will be multiple if in devmode
@@ -384,13 +379,14 @@ function init() {
   // window.addEventListener('keyup', returnToCenter, false);
 
   // Check if in dev mode
+  var vector;
   if(Settings.devMode !== true){
 
   //Set Camera
     var CamSettings = new PlutoRover.CameraSettings(Settings.screenWidth, Settings.screenHeight);
     var Camera = new THREE.PerspectiveCamera(CamSettings.fov, CamSettings.aspectRatio, CamSettings.nearPlane, CamSettings.farPlane);
 
-    var vector = new THREE.Vector3(0, 25, 0);
+    vector = new THREE.Vector3(0, 25, 0);
     Controller.setCameraPosition(Camera, 0, 25, 17);
 
     Camera.lookAt(vector);
@@ -410,7 +406,7 @@ function init() {
       camera.position.z = view.eye[2];
 
       var s = view.subject;
-      var vector = new THREE.Vector3(s[0], s[1], s[2]);
+      vector = new THREE.Vector3(s[0], s[1], s[2]);
 
       camera.lookAt(vector);
 
@@ -433,8 +429,8 @@ function init() {
 
   //Lights
   //NEEDS TO BE MOVED
-  var hemisphereLight = new THREE.HemisphereLight(0x000000, 0x3F3F3F, .9);//Color 1, Color 2, Intensity
-  var shadowLight = new THREE.DirectionalLight(0xffffff, .9);//Color, Intensity
+  var hemisphereLight = new THREE.HemisphereLight(0x000000, 0x3F3F3F, 0.9);//Color 1, Color 2, Intensity
+  var shadowLight = new THREE.DirectionalLight(0xffffff, 0.9);//Color, Intensity
 
   shadowLight.position.set(150, 350, 350);
 
@@ -456,7 +452,7 @@ function init() {
   shadowLight.shadow.mapSize.height = 2048;
 
   //Hills
-  var hills = new PlutoRover.Hills;
+  var hills = new PlutoRover.Hills();
   var hill_01 = hills.createHill();
 
   hill_01.position.x = -10;
@@ -499,7 +495,7 @@ function init() {
   Ship.position.y = 24.5;
   Ship.position.z = 11;
 
-  Ship.rotation.x = .25;
+  Ship.rotation.x = 0.25;
 
   Scene.add(Ship);
 
@@ -517,40 +513,40 @@ function init() {
     switch(e.keyCode) {
 
       case 39:
-        if(Camera.rotation.z >= .3){
-          Camera.rotation.z === .4;
-          Ship.position.x === 1.5;
-          Ship.rotation.y === .05;
-          Ship.rotation.z === .2;
+        if(Camera.rotation.z >= 0.3){
+          Camera.rotation.z = 0.4;
+          Ship.position.x = 1.5;
+          Ship.rotation.y = 0.05;
+          Ship.rotation.z = 0.2;
         } else {
 
-          createjs.Tween.get(Ship.position).to({x: Ship.position.x+1},100);
-          createjs.Tween.get(Ship.rotation).to({y: Ship.rotation.y+.01},100);
-          createjs.Tween.get(Ship.rotation).to({z: Ship.rotation.z-.025},100);
-          createjs.Tween.get(Camera.rotation).to({z: Camera.rotation.z+.05},100);
+          createjs.Tween.get(Ship.position).to({x: Ship.position.x + 1},100);
+          createjs.Tween.get(Ship.rotation).to({y: Ship.rotation.y + 0.01},100);
+          createjs.Tween.get(Ship.rotation).to({z: Ship.rotation.z - 0.025},100);
+          createjs.Tween.get(Camera.rotation).to({z: Camera.rotation.z + 0.05},100);
         }
         break;
 
       case 37:
-        if(Camera.rotation.z <= -.3){
-          Camera.rotation.z === -.4;
-          Ship.position.x === -1.5;
-          Ship.rotation.y === -.05;
-          Camera.rotation.z === -.4;
+        if(Camera.rotation.z <= -0.3){
+          Camera.rotation.z = -0.4;
+          Ship.position.x = -1.5;
+          Ship.rotation.y = -0.05;
+          Camera.rotation.z = -0.4;
         } else {
-          createjs.Tween.get(Ship.position).to({x: Ship.position.x-1},100);
-          createjs.Tween.get(Ship.rotation).to({y: Ship.rotation.y-.01},100);
-          createjs.Tween.get(Ship.rotation).to({z: Ship.rotation.z+.025},100);
-          createjs.Tween.get(Camera.rotation).to({z: Camera.rotation.z-.05},100);
+          createjs.Tween.get(Ship.position).to({x: Ship.position.x - 1},100);
+          createjs.Tween.get(Ship.rotation).to({y: Ship.rotation.y - 0.01},100);
+          createjs.Tween.get(Ship.rotation).to({z: Ship.rotation.z + 0.025},100);
+          createjs.Tween.get(Camera.rotation).to({z: Camera.rotation.z - 0.05},100);
         }
          break;
       case 38:
-        createjs.Tween.get(Ship.position).to({y: Ship.position.y-.1},100);
-        createjs.Tween.get(Ship.rotation).to({x: Ship.rotation.x-.05},100);
+        createjs.Tween.get(Ship.position).to({y: Ship.position.y - 0.1},100);
+        createjs.Tween.get(Ship.rotation).to({x: Ship.rotation.x - 0.05},100);
         break;
       case 40:
-        createjs.Tween.get(Ship.position).to({y: Ship.position.y+.1},100);
-        createjs.Tween.get(Ship.rotation).to({x: Ship.rotation.x+.05},100);
+        createjs.Tween.get(Ship.position).to({y: Ship.position.y + 0.1},100);
+        createjs.Tween.get(Ship.rotation).to({x: Ship.rotation.x + 0.05},100);
         break;
       default:
         break;
@@ -596,7 +592,7 @@ function init() {
     interval = setInterval(function() {
       spawnCrystal();
     }, 500);
-  },1000)
+  },1000);
 
 
 
@@ -616,7 +612,7 @@ function init() {
     requestAnimationFrame(animate);
   }
 
-  var test = 0
+  var test = 0;
 
 
   function update() {
@@ -640,8 +636,8 @@ function init() {
       if(collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
 
         var capturedObj = collisionResults[0].object;
-        var capturedObjGroup = capturedObj.parent
-        if(capturedObj != null && capturedObjGroup != null){
+        var capturedObjGroup = capturedObj.parent;
+        if(capturedObj !== null && capturedObjGroup !== null){
           console.log(capturedObjGroup);
           capturedObjGroup.remove(capturedObj);
         }
