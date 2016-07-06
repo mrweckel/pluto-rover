@@ -261,18 +261,21 @@ PlutoRover.CrystalMaster.prototype = {
     var that = this;
 
     //Makes sure that crystals are not placed outside of the ships x flight radius
-    var min = -3;
-    var max = 3;
+    var min = -4;
+    var max = 4;
 
     if (positionFromSibling === null) {
+      //return random integer in between the min and max values;
+
       xPos = Math.floor(Math.random() * (max - min + 1)) + min;
       console.log('setting first pos');
     } else {
       //This is all f'd. There has to be a better way to do this.
       xPos = positionFromSibling;
-      that.currentDegree -= 10;
+      this.currentDegree -= 10;
       xPos -= 0.1;
       console.log('setting sibling pos');
+      console.log(this.currentDegree, xPos);
     }
 
     console.log(crystal.position.x);
@@ -386,7 +389,7 @@ function init() {
     var CamSettings = new PlutoRover.CameraSettings(Settings.screenWidth, Settings.screenHeight);
     var Camera = new THREE.PerspectiveCamera(CamSettings.fov, CamSettings.aspectRatio, CamSettings.nearPlane, CamSettings.farPlane);
 
-    vector = new THREE.Vector3(0, 25, 0);
+    vector = new THREE.Vector3(0, 26, 0);
     Controller.setCameraPosition(Camera, 0, 25, 17);
 
     Camera.lookAt(vector);
@@ -415,7 +418,7 @@ function init() {
   }
 
   //for debug purposes
-  var camGuideGeom = new THREE.SphereGeometry(2);
+  var camGuideGeom = new THREE.SphereGeometry(0.5);
   var camGuideMesh = new THREE.Mesh(camGuideGeom, new THREE.MeshLambertMaterial({color: 0xff0000}));
   camGuideMesh.position.copy(vector);
   Scene.add(camGuideMesh);
@@ -452,14 +455,14 @@ function init() {
   shadowLight.shadow.mapSize.height = 2048;
 
   //Hills
-  var hills = new PlutoRover.Hills();
-  var hill_01 = hills.createHill();
+  // var hills = new PlutoRover.Hills();
+  // var hill_01 = hills.createHill();
 
-  hill_01.position.x = -10;
-  hill_01.position.y =  20;
-  hill_01.position.z = -200;
+  // hill_01.position.x = -10;
+  // hill_01.position.y =  20;
+  // hill_01.position.z = -200;
 
-  Scene.add(hill_01);
+  // Scene.add(hill_01);
 
   //Planet
   var Pluto = new PlutoRover.Planet().createLambertMesh();
@@ -512,42 +515,34 @@ function init() {
 
     switch(e.keyCode) {
 
-      case 39:
-        if(Camera.rotation.z >= 0.3){
-          Camera.rotation.z = 0.4;
-          Ship.position.x = 1.5;
-          Ship.rotation.y = 0.05;
-          Ship.rotation.z = 0.2;
-        } else {
-
-          createjs.Tween.get(Ship.position).to({x: Ship.position.x + 1},100);
+      case 39: //right
+        if(Camera.rotation.z <= 0.3){
+          createjs.Tween.get(Ship.position).to({x: Ship.position.x + 0.5},100);
           createjs.Tween.get(Ship.rotation).to({y: Ship.rotation.y + 0.01},100);
           createjs.Tween.get(Ship.rotation).to({z: Ship.rotation.z - 0.025},100);
           createjs.Tween.get(Camera.rotation).to({z: Camera.rotation.z + 0.05},100);
         }
         break;
 
-      case 37:
-        if(Camera.rotation.z <= -0.3){
-          Camera.rotation.z = -0.4;
-          Ship.position.x = -1.5;
-          Ship.rotation.y = -0.05;
-          Camera.rotation.z = -0.4;
-        } else {
-          createjs.Tween.get(Ship.position).to({x: Ship.position.x - 1},100);
+      case 37: //left
+        if(Camera.rotation.z >= -0.3){
+          createjs.Tween.get(Ship.position).to({x: Ship.position.x - 0.5},100);
           createjs.Tween.get(Ship.rotation).to({y: Ship.rotation.y - 0.01},100);
           createjs.Tween.get(Ship.rotation).to({z: Ship.rotation.z + 0.025},100);
           createjs.Tween.get(Camera.rotation).to({z: Camera.rotation.z - 0.05},100);
         }
-         break;
-      case 38:
+        break;
+
+      case 38: //up
         createjs.Tween.get(Ship.position).to({y: Ship.position.y - 0.1},100);
         createjs.Tween.get(Ship.rotation).to({x: Ship.rotation.x - 0.05},100);
         break;
-      case 40:
+
+      case 40: //down
         createjs.Tween.get(Ship.position).to({y: Ship.position.y + 0.1},100);
         createjs.Tween.get(Ship.rotation).to({x: Ship.rotation.x + 0.05},100);
         break;
+
       default:
         break;
     }
@@ -557,6 +552,7 @@ function init() {
   // 2- Also needs major clean up
   var crystalGroup = CrystalMaster.createGroup();
   var firstGroup = true;
+  var firstSiblingXPos;
 
   function spawnCrystal() {
 
@@ -567,20 +563,26 @@ function init() {
     var newCrystal = new PlutoRover.Crystal(crystalName);
     Settings.intersectableObjects.push(newCrystal);
 
-    var firstSiblingXPos;
-
     //yeesh
-    if (CrystalMaster.numOfCrystalGroups === 0){
+    //first crystal overall
+    if(CrystalMaster.numOfCrystalGroups === 0) {
+
       CrystalMaster.numOfCrystalGroups++;
       crystalGroup.add(newCrystal);
       CrystalMaster.setChildPosition(newCrystal, null);
-    } else if (crystalGroup.children.length > 3){
+      firstSiblingXPos = newCrystal.position.x;
+
+    //every subsequent first crystal in a group
+    } else if(crystalGroup.children.length > 3) {
+
       crystalGroup = CrystalMaster.createGroup();
       CrystalMaster.numOfCrystalGroups++;
       crystalGroup.add(newCrystal);
       CrystalMaster.setChildPosition(newCrystal, null);
       firstSiblingXPos = newCrystal.position.x;
+
     } else {
+
       crystalGroup.add(newCrystal);
       CrystalMaster.setChildPosition(newCrystal, firstSiblingXPos );
     }

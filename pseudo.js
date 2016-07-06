@@ -1,14 +1,13 @@
 // pseudo
 
-// -- Implement gulp
 // -- Adjust multiple crystal generator to better place along a curve
 // -- Add function to handle what happens after collision
 // -- Understand collisions/Raycasting
 
 
 
-
 // DONE
+// -- Implement gulp -- DONE
 // -- Make better check for first crystal in group -- DONE
 // -- Create multiple crystal generator -- DONE
 // -- Add basic collision detection -- DONE
