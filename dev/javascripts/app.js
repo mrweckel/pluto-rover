@@ -715,3 +715,20 @@ function init() {
   //event Handlers
   // Settings.win.addEventListener('resize', Controller.handleWindowResize(Renderer, Camera, Settings.win), false);
 }
+
+
+
+//Trig notes
+
+// SOHCAHTOA
+
+// sin = opp/hypotenuse
+// cos = adj/hypotenuse
+// tan = opp/adj
+
+// MODEL
+
+// |\
+// | \
+// |  \
+// |___\
