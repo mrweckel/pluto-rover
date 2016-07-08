@@ -90,6 +90,27 @@ PlutoRover.Colors = function() {
 
 PlutoRover.Colors.prototype = {};
 
+PlutoRover.Gameplay = function() {
+  this.score = 0;
+  this.lives = 3;
+  this.health = 100;
+  this.timer = 0;
+}
+
+PlutoRover.Gameplay.prototype = {
+
+  newGame: function() {
+    this._resetStats();
+  },
+
+  _resetStats: function() {
+    this.score = 0;
+    this.lives = 3;
+    this.health = 100;
+    this.timer = 0;
+  }
+}
+
 PlutoRover.Lights = function() {
   this.hemisphereLight = new THREE.HemisphereLight(0x000000, 0x3F3F3F, 0.9);//Color 1, Color 2, Intensity
   this.shadowLight = new THREE.DirectionalLight(0xffffff, 0.9);//Color, Intensity
