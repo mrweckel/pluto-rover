@@ -234,7 +234,7 @@ PlutoRover.Ship.prototype = {
 
   build: function() {
     var cubeGeometry = new THREE.BoxGeometry(this.width, this.height, this.depth);
-    var cubeMaterial = new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: false});
+    var cubeMaterial = new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: true});
     var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 
     cube.name = this.name;
@@ -293,8 +293,8 @@ PlutoRover.CrystalMaster.prototype = {
     } else {
       //This is all f'd. There has to be a better way to do this.
       xPos = positionFromSibling;
-      this.currentDegree -= 10;
-      xPos -= 0.1;
+      this.currentDegree += 0.05;
+      xPos -= 0.25;
       console.log('setting sibling pos');
       console.log(this.currentDegree, xPos);
     }
@@ -302,7 +302,7 @@ PlutoRover.CrystalMaster.prototype = {
     console.log(crystal.position.x);
 
     //26 is hardcoded planet radius. Needs to change and 0.5 is so it isn't exactly on the planets surface
-    var distFromPlanetCenter = 26 + 0.5; //aka hypotenuse
+    var distFromPlanetCenter = 26 + 0.25; //aka hypotenuse
 
     crystal.position.x = xPos;
     crystal.position.y = Math.sin(that.currentDegree) * distFromPlanetCenter;
@@ -516,8 +516,12 @@ function init() {
   var Ship = new PlutoRover.Ship().build();
 
   Ship.position.x = 0;
-  Ship.position.y = 24.5;
-  Ship.position.z = 11;
+  Ship.position.y = Math.sin(89.15) * 26.15;
+  Ship.position.z = Math.cos(89.15) * 26.15;
+
+  // Ship.position.x = 0;
+  // Ship.position.y = 24.5;
+  // Ship.position.z = 11;
 
   Ship.rotation.x = 0.25;
 
