@@ -558,15 +558,15 @@ function init() {
         }
         break;
 
-      case 38: //up
-        createjs.Tween.get(Ship.position).to({y: Ship.position.y - 0.1},100);
-        createjs.Tween.get(Ship.rotation).to({x: Ship.rotation.x - 0.05},100);
-        break;
+      // case 38: //up
+      //   createjs.Tween.get(Ship.position).to({y: Ship.position.y - 0.1},100);
+      //   createjs.Tween.get(Ship.rotation).to({x: Ship.rotation.x - 0.05},100);
+      //   break;
 
-      case 40: //down
-        createjs.Tween.get(Ship.position).to({y: Ship.position.y + 0.1},100);
-        createjs.Tween.get(Ship.rotation).to({x: Ship.rotation.x + 0.05},100);
-        break;
+      // case 40: //down
+      //   createjs.Tween.get(Ship.position).to({y: Ship.position.y + 0.1},100);
+      //   createjs.Tween.get(Ship.rotation).to({x: Ship.rotation.x + 0.05},100);
+      //   break;
 
       default:
         break;
