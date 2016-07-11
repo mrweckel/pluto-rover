@@ -202,7 +202,7 @@ PlutoRover.Hills.prototype = {
 
   createHill: function() {
 
-    var radius = this.randomGenerator();
+    var radius = this._randomGenerator();
     var widthSegments  = 100;
     var heightSegments = 100;
 
@@ -214,7 +214,7 @@ PlutoRover.Hills.prototype = {
     return mesh;
   },
 
-  randomGenerator: function() {
+  _randomGenerator: function() {
     var min = 5;
     var max = 10;
 
@@ -293,13 +293,9 @@ PlutoRover.CrystalMaster.prototype = {
     } else {
       //This is all f'd. There has to be a better way to do this.
       xPos = positionFromSibling;
-      this.currentDegree += 0.05;
-      xPos -= 0.25;
-      console.log('setting sibling pos');
-      console.log(this.currentDegree, xPos);
+      that.currentDegree += 0.05;
+      // xPos -= 0.25;
     }
-
-    console.log(crystal.position.x);
 
     //26 is hardcoded planet radius. Needs to change and 0.5 is so it isn't exactly on the planets surface
     var distFromPlanetCenter = 26 + 0.25; //aka hypotenuse
@@ -307,6 +303,8 @@ PlutoRover.CrystalMaster.prototype = {
     crystal.position.x = xPos;
     crystal.position.y = Math.sin(that.currentDegree) * distFromPlanetCenter;
     crystal.position.z = Math.cos(that.currentDegree) * distFromPlanetCenter;
+
+    console.log(crystal.position);
   }
 };
 
@@ -573,8 +571,6 @@ function init() {
     }
   }
 
-  // 1- This needs proper equations for placing objects on the surface of a sphere
-  // 2- Also needs major clean up
   var crystalGroup = CrystalMaster.createGroup();
   var firstGroup = true;
   var firstSiblingXPos;
@@ -608,8 +604,9 @@ function init() {
 
     } else {
 
+      firstSiblingXPos -= 0.25 //move xPos of newcrystal before setting Child Position
       crystalGroup.add(newCrystal);
-      CrystalMaster.setChildPosition(newCrystal, firstSiblingXPos );
+      CrystalMaster.setChildPosition(newCrystal, firstSiblingXPos);
     }
 
   }
