@@ -252,8 +252,11 @@ PlutoRover.CrystalMaster = function(parent, settings) {
   this.totalCrystals = 0;
   this.crystalGroups = [];
   this.numOfCrystalGroups = this.crystalGroups.length;
-  this.crystalQuadrants = [0,45,90,135,180,225,270,315];
+  this.crystalQuadrants = [0, 22.5, 45, 67.5, 90, 112.5,135, 157.5, 180, 202.5,225, 247.5, 270, 292.5, 315, 337.5];
+  this.totalPossibleCrystals = this.crystalQuadrants.length * 4;
   this.currentDegree = null;
+  this.possibleXPosDiffs = [-0.25, 0.25]; //Allows to randomly choose the spacing between crystals
+  this.xShift = null; //Will be set/reset with the creation of each new crystal group
 };
 
 
@@ -289,7 +292,6 @@ PlutoRover.CrystalMaster.prototype = {
       //return random integer in between the min and max values;
 
       xPos = Math.floor(Math.random() * (max - min + 1)) + min;
-      console.log('setting first pos');
     } else {
       //This is all f'd. There has to be a better way to do this.
       xPos = positionFromSibling;
@@ -303,8 +305,6 @@ PlutoRover.CrystalMaster.prototype = {
     crystal.position.x = xPos;
     crystal.position.y = Math.sin(that.currentDegree) * distFromPlanetCenter;
     crystal.position.z = Math.cos(that.currentDegree) * distFromPlanetCenter;
-
-    console.log(crystal.position);
   }
 };
 
@@ -574,10 +574,11 @@ function init() {
   var crystalGroup = CrystalMaster.createGroup();
   var firstGroup = true;
   var firstSiblingXPos;
+  var plusOrMinus = [-0.25,0.25];
+  var xShift;
 
   function spawnCrystal() {
 
-    CrystalMaster.totalCrystals ++;
     var nextNumber = CrystalMaster.totalCrystals;
     var crystalName = 'crystal-' + nextNumber;
 
@@ -592,6 +593,7 @@ function init() {
       crystalGroup.add(newCrystal);
       CrystalMaster.setChildPosition(newCrystal, null);
       firstSiblingXPos = newCrystal.position.x;
+      CrystalMaster.xShift = Settings.getRandom(CrystalMaster.possibleXPosDiffs);
 
     //every subsequent first crystal in a group
     } else if(crystalGroup.children.length > 3) {
@@ -601,20 +603,32 @@ function init() {
       crystalGroup.add(newCrystal);
       CrystalMaster.setChildPosition(newCrystal, null);
       firstSiblingXPos = newCrystal.position.x;
+      CrystalMaster.xShift = Settings.getRandom(CrystalMaster.possibleXPosDiffs);
 
     } else {
 
-      firstSiblingXPos -= 0.25 //move xPos of newcrystal before setting Child Position
+      firstSiblingXPos += CrystalMaster.xShift; //move xPos of newcrystal before setting Child Position
       crystalGroup.add(newCrystal);
       CrystalMaster.setChildPosition(newCrystal, firstSiblingXPos);
     }
 
+    CrystalMaster.totalCrystals ++;
   }
 
   var interval;
+
   setTimeout(function(){
     interval = setInterval(function() {
-      spawnCrystal();
+      //This is not the best check for when to end the interval, but tbh this isn't even the best way of spawning Crystals in the first place.
+      if(CrystalMaster.totalCrystals !== CrystalMaster.totalPossibleCrystals){
+
+        spawnCrystal();
+      } else {
+
+        console.log('No more crystals to be generated');
+
+        clearInterval(interval);
+      }
     }, 500);
   },1000);
 
